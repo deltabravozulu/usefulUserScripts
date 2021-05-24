@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        pimeyesExplicitJS 
+// @name        pimeyesExplicitJS
 // @namespace   Violentmonkey Scripts
 // @match       *://pimeyes.com/en/search/*
 // @grant       none
@@ -16,27 +16,34 @@
  ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-
   ///////////////////////////////////////
  //       Script Initialization       //
 ///////////////////////////////////////
 /*
-** Invokes injection of buttons
-** Sets initial variables and gathers stats
-*/
+ ** Invokes injection of buttons
+ ** Sets initial variables and gathers stats
+ */
 
-//Make sure page loads before starting 
-(new MutationObserver(check)).observe(document, {childList: true, subtree: true});
+//Make sure page loads before starting
+new MutationObserver(check).observe(document, {
+	childList: true,
+	subtree: true,
+});
 
 function check(changes, observer) {
-    if(document.querySelector('#results > div > div > div.top-slot > div > div > div > button:nth-child(5) > img')) {
-    observer.disconnect();
-    explicitButts();
-    scrollButts();
-    explicitCount = 0;
-    explicitStats();
-    scrolled = 0;
-    scrollResultsUpdateListener();    }
+	if (
+		document.querySelector(
+			"#results > div > div > div.top-slot > div > div > div > button:nth-child(5) > img"
+		)
+	) {
+		observer.disconnect();
+		explicitButts();
+		scrollButts();
+		explicitCount = 0;
+		explicitStats();
+		scrolled = 0;
+		scrollResultsUpdateListener();
+	}
 }
 
 //Alternative way of doing it
@@ -61,14 +68,13 @@ function action(o) {
 }
 */
 
-
   ///////////////////////////////////////
  //         Button Injections         //
 ///////////////////////////////////////
 /*
-** Adds buttons to invoke scrolling and removal
-** Sets initial variable and gathers stats
-*/
+ ** Adds buttons to invoke scrolling and removal
+ ** Sets initial variable and gathers stats
+ */
 
 //Injects a button that, when pressed, will scroll to the bottom of the page to load all images, then remove all images that are not explicit
 function explicitButts() {
@@ -98,13 +104,12 @@ function scrollButts() {
 	console.log("Added Scroll Button");
 }
 
-
   ///////////////////////////////////////
  //       Removal Prerequisites       //
 ///////////////////////////////////////
 /*
-** Includes a scroller to load the page, stats, and sleep timers
-*/
+ ** Includes a scroller to load the page, stats, and sleep timers
+ */
 
 //Scrolls down the page as fast as possible
 function scrollDown() {
@@ -121,10 +126,9 @@ function scrollUp() {
 //Scrolls all the way to the bottom of the page to load all results, then scrolls back to the top
 async function scroller() {
 	if (document.querySelectorAll("div.results-end").length === 1) {
-		scrolled = 1
-	}
-	else if (document.querySelectorAll("div.results-end").length === 0) {
-		scrolled = 0
+		scrolled = 1;
+	} else if (document.querySelectorAll("div.results-end").length === 0) {
+		scrolled = 0;
 	}
 	while (scrolled < 1) {
 		console.log("Scrolling to the bottom of the results");
@@ -183,19 +187,63 @@ function explicitStats() {
 function scrollResultsUpdateListener() {
 	addEventListener("scroll", function () {
 		if (document.querySelectorAll("div.results-end").length === 0) {
-		expResultsUpdater();
-		scrolled = 0;
-	}
-});
+			expResultsUpdater();
+			scrolled = 0;
+		}
+	});
 }
 
+//Adds mousedown event listener to highlight text during popup for copying
+clickThumb = document.querySelector("div.results-grid");
+clickThumb.addEventListener("mousedown", highlightUrl);
+
+//Highlights and generates url to go to site where image is hosted
+async function highlightUrl() {
+	console.log("Waiting to highlight");
+	await sleep(200);
+	var spanUrl = document.querySelector(
+		"div.modal-content div.thumbnail span.url"
+	);
+	if (typeof spanUrl != "undefined" && spanUrl != null) {
+		spanUrl = document.querySelector(
+			"div.modal-content div.thumbnail span.url"
+		);
+		spanUrl.innerHTML =
+			`<a href="` + spanUrl.innerHTML + `">` + spanUrl.innerHTML + `</a>`;
+
+		function selectText(node) {
+			node = spanUrl;
+
+			if (document.body.createTextRange) {
+				const range = document.body.createTextRange();
+				range.moveToElementText(node);
+				range.select();
+			} else if (window.getSelection) {
+				const selection = window.getSelection();
+				const range = document.createRange();
+				range.selectNodeContents(node);
+				selection.removeAllRanges();
+				selection.addRange(range);
+			} else {
+				console.warn(
+					"Could not select text in node: Unsupported browser."
+				);
+			}
+		}
+		selectText("spanUrl");
+	} else {
+		console.log(
+			"Tried to highlight URL because of highlightUrl mousedown event listener but popup does not exist!"
+		);
+	}
+}
 
   ///////////////////////////////////////
  //          Removal Scripts          //
 ///////////////////////////////////////
 /*
-**Pure Javascript based removal scripts
-*/
+ **Pure Javascript based removal scripts
+ */
 
 //Script to remove nonexplicit images using jQuery
 function jsRemover() {
@@ -219,8 +267,8 @@ async function explicitJS() {
 }
 
 /*
-**jQuery based removal scripts
-*/
+ **jQuery based removal scripts
+ */
 
 //Script to remove nonexplicit images using jQuery
 function jqRemover() {
@@ -314,7 +362,6 @@ function jqGetter() {
 	console.log("jQuery downloaded to page");
 }
 
-
   ///////////////////////////////////////
  //     CSS Mods/Page Improvement     //
 ///////////////////////////////////////
@@ -341,6 +388,7 @@ addStyle(`
 //From https://greasyfork.org/scripts/406062
 addStyle(`
 /*Make the URLs selectable, and visible*/
+/*div.modal-content>div.thumbnail>span.url*/
 *.url {
     filter: none !important;
     ;
@@ -428,11 +476,29 @@ addStyle(`
 }
 `);
 
+//Hide the unlock popup if it appears in another way (e.g. hitting Deep search on a paid account)
+//Prevent block-scroll from impacting the body if one hits "Deep search" or any button which causes an overlay
 addStyle(`
-/*Hide the unlock popup if it appears in another way*/
-#app > div:nth-child(3) > div.wrapper {
-    display: none !important;
-    ;
+/*Hide the unlock popup if it appears in another way#1*/
+/*Prevent block-scroll from impacting the body if one hits "Deep search" or any button which causes an overlay*/
+.block-scroll {
+    touch-action: auto !important;
+    -webkit-overflow-scrolling: touch!important;
+    overflow: visible!important;
+    -ms-scroll-chaining: none!important;
+    overscroll-behavior: unset!important;
+}
+	`);
+
+//Removes the 'Pay 299/month' overlay if hitting the Deep Search button
+document.querySelector("div[data-v-69882821]").remove();
+
+//Stops the button sizes from changing if one happens to hit the Deep Search button or cause an overlay
+addStyle(`
+/*Hide the unlock popup if it appears in another way #2*/
+/*Stops the button sizes from changing if one happens to hit the Deep Search button or cause an overlay*/
+*, :after, :before {
+    box-sizing: revert !important;
 }
 `);
 
@@ -454,5 +520,5 @@ body {
 
 /*
 ** bookmarklet
-javascript:(function()%7Bfunction%20n()%7Bconsole.log(%22Adding%2018%2B%20Button%22)%3Bdocument.querySelector(%22%23results%20%3E%20div%20%3E%20div%20%3E%20div.top-slot%20%3E%20div%20%3E%20div%20%3E%20div%20%3E%20button%3Alast-child%22).parentElement.insertAdjacentHTML(%22beforeend%22%2C'%3Cbutton%20data-v-4ccff48d%3D%22%22%20type%3D%22button%22%20class%3D%22default%20icon-only%22%20data-v-46dbee4d%3D%22%22%20id%3D%2218Button%22%3E%3Cimg%20data-v-4ccff48d%3D%22%22%20src%3D%22data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB2aWV3Qm94PSIwIDAgMzEwLjkgMzEwLjkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI%2BPHBhdGggZD0iTTk1IDIxMS40di04OS4zSDc0LjRWOTkuMmg0OS4xdjExMi4yem0xMzUuNi04My4yYzAgOS44LTUuMyAxOC40LTE0LjEgMjMuMiAxMi4zIDUuMSAyMCAxNS44IDIwIDI4LjMgMCAyMC4yLTE3LjkgMzMtNDUuOSAzM3MtNDUuOS0xMi42LTQ1LjktMzIuNWMwLTEyLjggOC4zLTIzLjcgMjEuMy0yOC44LTkuNC01LjMtMTUuNS0xNC4yLTE1LjUtMjQgMC0xNy45IDE1LjctMjkuMyA0MC0yOS4zIDI0LjUuMSA0MC4xIDExLjcgNDAuMSAzMC4xem0tNTkuMSA0OS4yYzAgOS40IDYuNyAxNC43IDE5IDE0LjdzMTkuMi01LjEgMTkuMi0xNC43YzAtOS4zLTYuOS0xNC42LTE5LjItMTQuNnMtMTkgNS4zLTE5IDE0LjZ6bTIuOS00Ny42YzAgOCA1LjggMTIuNSAxNi4yIDEyLjVzMTYuMi00LjUgMTYuMi0xMi41YzAtOC4zLTUuOC0xMy0xNi4yLTEzLTEwLjUuMS0xNi4yIDQuNy0xNi4yIDEzeiIvPjxwYXRoIGQ9Ik0xNTUuNCAzMTAuOUM2OS43IDMxMC45IDAgMjQxLjEgMCAxNTUuNFM2OS43IDAgMTU1LjQgMGMxMS42IDAgMjMuMiAxLjMgMzQuNSAzLjlWMTVjLTExLjItMi44LTIyLjgtNC4xLTM0LjUtNC4xLTc5LjcgMC0xNDQuNiA2NC45LTE0NC42IDE0NC42czY0LjkgMTQ0LjYgMTQ0LjYgMTQ0LjZTMzAwIDIzNS4yIDMwMCAxNTUuNWMwLTExLjctMS40LTIzLjMtNC4xLTM0LjVIMzA3YzIuNiAxMS4zIDMuOSAyMi44IDMuOSAzNC41IDAgODUuNi02OS44IDE1NS40LTE1NS41IDE1NS40eiIvPjxwYXRoIGQ9Ik0yNzUuNyAzNS4xVjMuNkgyNTN2MzEuNWgtMzEuNHYyMi43SDI1M3YzMS41aDIyLjdWNTcuOGgzMS41VjM1LjF6Ii8%2BPC9zdmc%2B%22%3E%20%3Cspan%20data-v-4ccff48d%3D%22%22%3EView%20Explicit%3C%2Fspan%3E%3C%2Fbutton%3E')%2Cdocument.getElementById(%2218Button%22).addEventListener(%22click%22%2Cl)%2Cconsole.log(%22Added%2018%2B%20Button%22)%7Dfunction%20t()%7Bconsole.log(%22Adding%20Scroll%20Button%22)%3Bdocument.querySelector(%22%23results%20%3E%20div%20%3E%20div%20%3E%20div.top-slot%20%3E%20div%20%3E%20div%20%3E%20div%20%3E%20button%3Alast-child%22).parentElement.insertAdjacentHTML(%22beforeend%22%2C'%3Cbutton%20data-v-4ccff48d%3D%22%22%20type%3D%22button%22%20class%3D%22default%20icon-only%22%20data-v-46dbee4d%3D%22%22%20id%3D%22scrollButton%22%3E%3Cimg%20data-v-4ccff48d%3D%22%22%20src%3D%22data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB2aWV3Qm94PSIwIDAgNDkwLjcgNDkwLjciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI%2BPHBhdGggZD0ibTQ3Mi4zIDIxNi41LTIyNy4xIDIyNy4yLTIyNy4xLTIyNy4yYy00LjItNC4xLTExLTQtMTUuMS4zLTQgNC4xLTQgMTAuNyAwIDE0LjhsMjM0LjcgMjM0LjdjNC4yIDQuMiAxMC45IDQuMiAxNS4xIDBsMjM0LjctMjM0LjdjNC4xLTQuMiA0LTExLS4zLTE1LjEtNC4yLTQtMTAuNy00LTE0LjkgMHoiIGZpbGw9IiM2MDdkOGIiLz48cGF0aCBkPSJtNDcyLjMgMjQuNS0yMjcuMSAyMjcuMi0yMjcuMS0yMjcuMmMtNC4yLTQuMS0xMS00LTE1LjEuMy00IDQuMS00IDEwLjcgMCAxNC44bDIzNC43IDIzNC43YzQuMiA0LjIgMTAuOSA0LjIgMTUuMSAwbDIzNC42LTIzNC43YzQuMi00LjEgNC40LTEwLjguMy0xNS4xLTQuMS00LjItMTAuOC00LjQtMTUuMS0uMy0uMS4yLS4yLjItLjMuM3oiIGZpbGw9IiM2MDdkOGIiLz48cGF0aCBkPSJtMjQ1LjIgNDY5LjRjLTIuOCAwLTUuNS0xLjEtNy42LTMuMWwtMjM0LjYtMjM0LjdjLTQuMS00LjItNC0xMSAuMy0xNS4xIDQuMS00IDEwLjctNCAxNC44IDBsMjI3LjEgMjI3LjEgMjI3LjEtMjI3LjFjNC4yLTQuMSAxMS00IDE1LjEuMyA0IDQuMSA0IDEwLjcgMCAxNC44bC0yMzQuNyAyMzQuN2MtMiAyLTQuNyAzLjEtNy41IDMuMXoiLz48cGF0aCBkPSJtMjQ1LjIgMjc3LjRjLTIuOCAwLTUuNS0xLjEtNy42LTMuMWwtMjM0LjYtMjM0LjdjLTQuMS00LjItNC0xMSAuMy0xNS4xIDQuMS00IDEwLjctNCAxNC44IDBsMjI3LjEgMjI3LjEgMjI3LjEtMjI3LjFjNC4xLTQuMiAxMC44LTQuNCAxNS4xLS4zczQuNCAxMC44LjMgMTUuMWMtLjEuMS0uMi4yLS4zLjNsLTIzNC43IDIzNC43Yy0yIDItNC43IDMuMS03LjUgMy4xeiIvPjwvc3ZnPg%3D%3D%22%3E%20%3Cspan%20data-v-4ccff48d%3D%22%22%3EScroll%20Button%3C%2Fspan%3E%3C%2Fbutton%3E')%2Cdocument.getElementById(%22scrollButton%22).addEventListener(%22click%22%2Co)%2Cconsole.log(%22Added%20Scroll%20Button%22)%7Dfunction%20i()%7Bwindow.scrollBy(0%2C1e4)%2Cwindow.scrollTo(0%2Cdocument.body.scrollHeight)%7Dfunction%20M()%7Bwindow.scrollBy(0%2C-5e4)%2Cwindow.scrollTo(0%2C0)%7Dasync%20function%20o()%7Bfor(1%3D%3D%3Ddocument.querySelectorAll(%22div.results-end%22).length%3Fscrolled%3D1%3A0%3D%3D%3Ddocument.querySelectorAll(%22div.results-end%22).length%26%26(scrolled%3D0)%3Bscrolled%3C1%3B)%7Bconsole.log(%22Scrolling%20to%20the%20bottom%20of%20the%20results%22)%3Bvar%20n%3D1%3Bdo%7Bi()%2Cconsole.log(%22Sleeping%201000ms%22)%2Cawait%20u(1e3)%2Cconsole.log(%22Still%20scrolling%20(%22%2Bn%2B%22x)%22)%2Cn%2B%2B%7Dwhile(0%3D%3D%3Ddocument.querySelectorAll(%22div.results-end%22).length)%3Bconsole.log(%22Done%20scrolling%22)%2Cconsole.log(%22Sleeping%201000ms%22)%2Cawait%20u(1e3)%2Cconsole.log(%22Scrolling%20to%20top%20of%20page%22)%2CM()%2Cconsole.log(%22We%20reached%20the%20top%22)%2Cconsole.log(%22Sleeping%201000ms%22)%2Cawait%20u(1e3)%2Cscrolled%3D1%7D%7Dfunction%20u(t)%7Breturn%20new%20Promise(n%3D%3EsetTimeout(n%2Ct))%7Dfunction%20e()%7BexplicitCount%3Ddocument.querySelectorAll(%22%23results%20div.results-grid%20div.result%20div.thumbnail%20span.explicit-result%22).length%2Cconsole.log(explicitCount%2B%22%20potentially%20explicit%20results%20so%20far%22)%2Cdocument.getElementById(%22expResults%22).innerHTML%3DexplicitCount%7Dfunction%20L()%7Bconsole.log(%22Inserting%20Stats%20Counter%22)%3Bvar%20n%3Ddocument.querySelector(%22%23results%20%3E%20div%20%3E%20div%20%3E%20div.top-slot%20%3E%20div%20%3E%20div%20%3E%20span%20%3E%20span%3Anth-child(2)%22)%2Ct%3D'%3Cspan%20data-v-26e5f418%3D%22%22%3E%3Cbdi%20id%3D%22expResults%22%3E'%2BexplicitCount%2B%22%3C%2Fbdi%3E%20potentially%20explicit%20results%20so%20far%3C%2Fspan%3E%22%3Bn.insertAdjacentHTML(%22beforebegin%22%2Ct)%2Ce()%7Dfunction%20c()%7BaddEventListener(%22scroll%22%2Cfunction()%7B0%3D%3D%3Ddocument.querySelectorAll(%22div.results-end%22).length%26%26(e()%2Cscrolled%3D0)%7D)%7Dfunction%20d()%7Bconsole.log(%22Running%20removal%20script%20(Pure%20JavaScript)%22)%2Cdocument.querySelectorAll(%22%23results%20div.results-grid%20div.result%20div.thumbnail%22).forEach(function(n)%7Bn.querySelector(%22span.explicit-result%22)%7C%7Cn.parentNode.remove()%7D)%2Cconsole.log(%22Finished%20removal%20script%22)%7Dasync%20function%20l()%7Bconsole.log(%22Starting%20the%20removal%20process%22)%2Cawait%20o()%2Cd()%2Cconsole.log(%22Finished%20the%20removal%20process%22)%7Dfunction%20s(n)%7Bconst%20t%3Ddocument.createElement(%22style%22)%3Bt.textContent%3Dn%2Cdocument.head.append(t)%7Dn()%2Ct()%2CexplicitCount%3D0%2CL()%2Cscrolled%3D0%2Cc()%2Cs(%22%5Cn.blurred-source-url%20%7B%5Cn%20%20%20%20user-select%3A%20all%20!important%3B%5Cn%20%20%20%20%3B%5Cn%7D%5Cn%22)%2Cs(%22%5Cn*.url%20%7B%5Cn%20%20%20%20filter%3A%20none%20!important%3B%5Cn%20%20%20%20%3B%5Cn%20%20%20%20overflow%3A%20visible%20!important%3B%5Cn%20%20%20%20%3B%5Cn%20%20%20%20user-select%3A%20initial%20!important%3B%5Cn%20%20%20%20%3B%5Cn%20%20%20%20max-width%3A%20initial%20!important%3B%5Cn%20%20%20%20%3B%5Cn%20%20%20%20pointer-events%3A%20none%20!important%3B%5Cn%20%20%20%20%3B%5Cn%20%20%20%20position%3A%20initial%20!important%3B%5Cn%7D%5Cn%22)%2Cs(%22%5Cn.zoom%20%7B%5Cn%20%20%20%20display%3A%20none%20!important%3B%5Cn%20%20%20%20%3B%5Cn%7D%5Cn%22)%2Cs(%22%5Cn.promo%20%7B%5Cn%20%20%20%20display%3A%20none%20!important%3B%5Cn%20%20%20%20%3B%5Cn%7D%5Cn%22)%2Cs(%22%5Cn.actions%20%7B%5Cn%20%20%20%20display%3A%20none%20!important%3B%5Cn%20%20%20%20%3B%5Cn%7D%5Cn%22)%2Cs('%5Cnbutton%5Bclass%3D%22spacer%22%5D%20%7B%5Cn%20%20%20%20display%3A%20inherit%20!important%3B%5Cn%20%20%20%20%3B%5Cn%7D%5Cn')%2Cs(%22%5Cndiv.thumbnail%20%7B%5Cn%20%20%20%20pointer-events%3A%20none%20!important%3B%5Cn%20%20%20%20%3B%5Cn%7D%5Cn%22)%2Cs(%22%5Cn%23app%20%3E%20div%3Anth-child(4)%20%3E%20div%20%3E%20div.mask%20%7B%5Cn%20%20%20%20display%3A%20none%20!important%3B%5Cn%20%20%20%20%3B%5Cn%7D%5Cn%22)%2Cs(%22%5Cn%23app%20%3E%20div%3Anth-child(4)%20%3E%20div.wrapper%20%7B%5Cn%20%20%20%20display%3A%20none%20!important%3B%5Cn%20%20%20%20%3B%5Cn%7D%5Cn%22)%2Cs(%22%5Cn%23app%20%3E%20div%3Anth-child(3)%20%3E%20div.wrapper%20%7B%5Cn%20%20%20%20display%3A%20none%20!important%3B%5Cn%20%20%20%20%3B%5Cn%7D%5Cn%22)%2Cs(%22%5Cn%23fscCanvas%20%7B%5Cn%20%20%20%20display%3A%20none%20!important%3B%5Cn%20%20%20%20%3B%5Cn%7D%5Cn%22)%2Cs(%22%5Cnbody%20%7B%5Cn%20%20%20%20overflow%3A%20visible%20!important%3B%5Cn%20%20%20%20%3B%5Cn%7D%5Cn%22)%3B%7D)()%3B
+javascript:(function()%7Beval(function(p%2Ca%2Cc%2Ck%2Ce%2Cr)%7Be%3Dfunction(c)%7Breturn(c%3Ca%3F''%3Ae(parseInt(c%2Fa)))%2B((c%3Dc%25a)%3E35%3FString.fromCharCode(c%2B29)%3Ac.toString(36))%7D%3Bif(!''.replace(%2F%5E%2F%2CString))%7Bwhile(c--)r%5Be(c)%5D%3Dk%5Bc%5D%7C%7Ce(c)%3Bk%3D%5Bfunction(e)%7Breturn%20r%5Be%5D%7D%5D%3Be%3Dfunction()%7Breturn'%5C%5Cw%2B'%7D%3Bc%3D1%7D%3Bwhile(c--)if(k%5Bc%5D)p%3Dp.replace(new%20RegExp('%5C%5Cb'%2Be(c)%2B'%5C%5Cb'%2C'g')%2Ck%5Bc%5D)%3Breturn%20p%7D('b%201q()%7B7.8(%221r%2018%2B%20u%22)%3B5.k(%22%23c%20%3E%203%20%3E%203%20%3E%203.w-Z%20%3E%203%20%3E%203%20%3E%203%20%3E%20g%3A1s-y%22).1t.10(%221u%22%2C%5C'%3Cg%20h-v-m%3D%22%22%201v%3D%22g%22%2011%3D%221w%201x-1y%22%20h-v-1z%3D%22%22%2012%3D%221A%22%3E%3C1B%20h-v-m%3D%22%22%201C%3D%22h%3AH%2F1D%2B1E%3B1F%2C2q%2B2r%2B2s%2B%22%3E%20%3Cf%20h-v-m%3D%22%22%3E2t%202u%3C%2Ff%3E%3C%2Fg%3E%5C')%2C5.13(%221A%22).I(%221G%22%2C1H)%2C7.8(%221I%2018%2B%20u%22)%7Db%201J()%7B7.8(%221r%2014%20u%22)%3B5.k(%22%23c%20%3E%203%20%3E%203%20%3E%203.w-Z%20%3E%203%20%3E%203%20%3E%203%20%3E%20g%3A1s-y%22).1t.10(%221u%22%2C%5C'%3Cg%20h-v-m%3D%22%22%201v%3D%22g%22%2011%3D%221w%201x-1y%22%20h-v-1z%3D%22%22%2012%3D%221K%22%3E%3C1B%20h-v-m%3D%22%22%201C%3D%22h%3AH%2F1D%2B1E%3B1F%2C2v%2B2w%3D%3D%22%3E%20%3Cf%20h-v-m%3D%22%22%3E14%20u%3C%2Ff%3E%3C%2Fg%3E%5C')%2C5.13(%221K%22).I(%221G%22%2C15)%2C7.8(%221I%2014%20u%22)%7Db%201L()%7Bo.1M(0%2C2x)%2Co.1N(0%2C5.J.2y)%7Db%201O()%7Bo.1M(0%2C-2z)%2Co.1N(0%2C0)%7D16%20b%2015()%7B1P(1%3D%3D%3D5.p(%223.c-K%22).z%3Fq%3D1%3A0%3D%3D%3D5.p(%223.c-K%22).z%26%26(q%3D0)%3Bq%3C1%3B)%7B7.8(%221Q%20r%209%202A%2017%209%20c%22)%3B19%20e%3D1%3B2B%7B1L()%2C7.8(%221a%201b%22)%2CA%20B(1c)%2C7.8(%222C%20L%20(%22%2Be%2B%22x)%22)%2Ce%2B%2B%7D2D(0%3D%3D%3D5.p(%223.c-K%22).z)%3B7.8(%222E%20L%22)%2C7.8(%221a%201b%22)%2CA%20B(1c)%2C7.8(%221Q%20r%20w%2017%202F%22)%2C1O()%2C7.8(%222G%202H%209%20w%22)%2C7.8(%221a%201b%22)%2CA%20B(1c)%2Cq%3D1%7D%7Db%20B(e)%7B2I%202J%202K(t%3D%3E2L(t%2Ce))%7Db%201d()%7BC%3D5.p(%22%23c%203.c-1e%203.M%203.s%20f.N-M%22).z%2C7.8(C%2B%22%201R%20N%20c%201f%201S%22)%2C5.13(%221T%22).O%3DC%7Db%201U()%7B7.8(%222M%202N%202O%22)%3B19%20e%3D5.k(%22%23c%20%3E%203%20%3E%203%20%3E%203.w-Z%20%3E%203%20%3E%203%20%3E%20f%20%3E%20f%3A1g-y(2)%22)%2Ct%3D%5C'%3Cf%20h-v-2P%3D%22%22%3E%3C1V%2012%3D%221T%22%3E%5C'%2BC%2B%22%3C%2F1V%3E%201R%20N%20c%201f%201S%3C%2Ff%3E%22%3Be.10(%222Q%22%2Ct)%2C1d()%7Db%201W()%7BI(%22P%22%2Cb()%7B0%3D%3D%3D5.p(%223.c-K%22).z%26%26(1d()%2Cq%3D0)%7D)%7D16%20b%201h()%7B7.8(%222R%20r%201X%22)%2CA%20B(2S)%3B19%20e%3D5.k(%223.1i-1j%203.s%20f.D%22)%3Bj(2T%200!%3D%3De%26%262U!%3De)%7B(e%3D5.k(%223.1i-1j%203.s%20f.D%22)).O%3D%5C'%3Ca%202V%3D%22%5C'%2Be.O%2B%5C'%22%3E%5C'%2Be.O%2B%22%3C%2Fa%3E%22%2Cb(t)%7Bj(t%3De%2C5.J.1Y)%7B1k%20e%3D5.J.1Y()%3Be.2W(t)%2Ce.E()%7D1l%20j(o.1Z)%7B1k%20e%3Do.1Z()%2Cn%3D5.2X()%3Bn.2Y(t)%2Ce.2Z()%2Ce.30(n)%7D1l%207.31(%2232%2020%20E%2033%201m%2034%3A%2035%2036.%22)%7D(%2237%22)%7D1l%207.8(%2238%20r%201X%2039%203a%2017%201h%2021%203b%203c%203d%20F%203e%2020%203f!%22)%7Db%2022()%7B7.8(%223g%20Q%2023%20(3h%203i)%22)%2C5.p(%22%23c%203.c-1e%203.M%203.s%22).3j(b(e)%7Be.k(%22f.N-M%22)%7C%7Ce.3k.24()%7D)%2C7.8(%2225%20Q%2023%22)%7D16%20b%201H()%7B7.8(%223l%209%20Q%2026%22)%2CA%2015()%2C22()%2C7.8(%2225%209%20Q%2026%22)%7Db%20d(e)%7B1k%20t%3D5.3m(%223n%22)%3Bt.3o%3De%2C5.3p.3q(t)%7D1q()%2C1J()%2CC%3D0%2C1U()%2Cq%3D0%2C1W()%2C27%3D5.k(%223.c-1e%22)%2C27.I(%2221%22%2C1h)%2Cd(%22%5C%5Cn%2F*3r-3s%209%2028*%2F%5C%5Cn.3t-3u-D%20%7B%5C%5Cn%20%20%20%2029-E%3A%203v%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%7D%5C%5Cn%22)%2Cd(%22%5C%5Cn%2F*3w%209%2028%203x%2C%202a%20R*%2F%5C%5Cn%2F*3.1i-1j%3E3.s%3Ef.D*%2F%5C%5Cn*.D%20%7B%5C%5Cn%20%20%20%203y%3A%20i%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%20%20%20%20S%3A%20R%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%20%20%20%2029-E%3A%201n%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%20%20%20%203z-3A%3A%201n%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%20%20%20%202b-1o%3A%20i%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%20%20%20%203B%3A%201n%20!6%3B%5C%5Cn%7D%5C%5Cn%22)%2Cd(%22%5C%5Cn%2F*T%209%203C%203D%20U%202c%202d*%2F%5C%5Cn.3E%20%7B%5C%5Cn%20%20%20%20l%3A%20i%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%7D%5C%5Cn%22)%2Cd(%22%5C%5Cn%2F*T%209%20%5C'3F%203G%20r%203H%20c%202a%201p%202e%201P%20%243I.3J%2F3K%20U%202c%202d*%2F%5C%5Cn.3L%20%7B%5C%5Cn%20%20%20%20l%3A%20i%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%7D%5C%5Cn%22)%2Cd(%22%5C%5Cn%2F*T%209%202f%203M%2C%201f%203N%203O%20E%209%20H*%2F%5C%5Cn.2f%20%7B%5C%5Cn%20%20%20%20l%3A%20i%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%7D%5C%5Cn%22)%2Cd(%5C'%5C%5Cn%2F*3P-3Q%203R%203S%20g*%2F%5C%5C3T%5B11%3D%223U%22%5D%20%7B%5C%5Cn%20%20%20%20l%3A%203V%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%7D%5C%5Cn%5C')%2Cd(%22%5C%5Cn%2F*T%201o%20V%20H*%2F%5C%5C3W.s%20%7B%5C%5Cn%20%20%20%202b-1o%3A%20i%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%7D%5C%5Cn%22)%2Cd(%22%5C%5Cn%2F*G%209%20W%20F%2F2g%20j%20X%20Y*%2F%5C%5Cn%232h%20%3E%203%3A1g-y(4)%20%3E%203%20%3E%203.3X%20%7B%5C%5Cn%20%20%20%20l%3A%20i%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%7D%5C%5Cn%22)%2Cd(%22%5C%5Cn%2F*G%209%20W%20F%2F2g%20j%20X%20Y*%2F%5C%5Cn%232h%20%3E%203%3A1g-y(4)%20%3E%203.3Y%20%7B%5C%5Cn%20%20%20%20l%3A%20i%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%7D%5C%5Cn%22)%2Cd(%5C'%5C%5Cn%2F*G%209%20W%20F%20j%20X%20Y%201m%202i%202j%231*%2F%5C%5Cn%2F*2k%202l-P%20V%203Z%209%20J%20j%202m%2040%20%221p%202e%22%202n%2041%20g%2042%2043%202o%20U*%2F%5C%5Cn.2l-P%20%7B%5C%5Cn%20%20%20%202p-44%3A%2045%20!6%3B%5C%5Cn%20%20%20%20-46-S-L%3A%202p!6%3B%5C%5Cn%20%20%20%20S%3A%20R!6%3B%5C%5Cn%20%20%20%20-47-P-48%3A%20i!6%3B%5C%5Cn%20%20%20%2049-4a%3A%204b!6%3B%5C%5Cn%7D%5C%5Cn%5C%5Ct%5C')%2C5.k(%223%5Bh-v-4c%5D%22).24()%2Cd(%22%5C%5Cn%2F*G%209%20W%20F%20j%20X%20Y%201m%202i%202j%20%232*%2F%5C%5Cn%2F*4d%209%20g%204e%20V%204f%20j%202m%204g%20r%204h%209%201p%204i%20g%202n%204j%202o%20U*%2F%5C%5Cn*%2C%20%3A4k%2C%20%3A4l%20%7B%5C%5Cn%20%20%20%204m-4n%3A%204o%20!6%3B%5C%5Cn%7D%5C%5Cn%22)%2Cd(%22%5C%5Cn%2F*G%209%204p%204q%204r*%2F%5C%5Cn%234s%20%7B%5C%5Cn%20%20%20%20l%3A%20i%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%7D%5C%5Cn%22)%2Cd(%22%5C%5Cn%2F*2k%209%204t%20V%204u%20L*%5C%5C4v%20%7B%5C%5Cn%20%20%20%20S%3A%20R%20!6%3B%5C%5Cn%20%20%20%20%3B%5C%5Cn%7D%5C%5Cn%22)%3B'%2C62%2C280%2C'%7C%7C%7Cdiv%7C%7Cdocument%7Cimportant%7Cconsole%7Clog%7Cthe%7C%7Cfunction%7Cresults%7CaddStyle%7C%7Cspan%7Cbutton%7Cdata%7Cnone%7Cif%7CquerySelector%7Cdisplay%7C4ccff48d%7C%7Cwindow%7CquerySelectorAll%7Cscrolled%7Cto%7Cthumbnail%7C%7CButton%7C%7Ctop%7C%7Cchild%7Clength%7Cawait%7Csleep%7CexplicitCount%7Curl%7Cselect%7Cpopup%7CHide%7Cimage%7CaddEventListener%7Cbody%7Cend%7Cscrolling%7Cresult%7Cexplicit%7CinnerHTML%7Cscroll%7Cremoval%7Cvisible%7Coverflow%7CRemove%7Coverlay%7Cfrom%7Cunlock%7Cit%7Cappears%7Cslot%7CinsertAdjacentHTML%7Cclass%7Cid%7CgetElementById%7CScroll%7Cscroller%7Casync%7Cof%7C%7Cvar%7CSleeping%7C1000ms%7C1e3%7CexpResultsUpdater%7Cgrid%7Cso%7Cnth%7ChighlightUrl%7Cmodal%7Ccontent%7Cconst%7Celse%7Cin%7Cinitial%7Cevents%7CDeep%7CexplicitButts%7CAdding%7Clast%7CparentElement%7Cbeforeend%7Ctype%7Cdefault%7Cicon%7Conly%7C46dbee4d%7C18Button%7Cimg%7Csrc%7Csvg%7Cxml%7Cbase64%7Cclick%7CexplicitJS%7CAdded%7CscrollButts%7CscrollButton%7CscrollDown%7CscrollBy%7CscrollTo%7CscrollUp%7Cfor%7CScrolling%7Cpotentially%7Cfar%7CexpResults%7CexplicitStats%7Cbdi%7CscrollResultsUpdateListener%7Chighlight%7CcreateTextRange%7CgetSelection%7Cnot%7Cmousedown%7CjsRemover%7Cscript%7Cremove%7CFinished%7Cprocess%7CclickThumb%7CURLs%7Cuser%7Cand%7Cpointer%7Con%7Cimages%7Csearch%7Cactions%7Cbuttons%7Capp%7Canother%7Cway%7CPrevent%7Cblock%7Cone%7Cor%7Can%7Ctouch%7CPHN2ZyB2aWV3Qm94PSIwIDAgMzEwLjkgMzEwLjkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI%7CPHBhdGggZD0iTTk1IDIxMS40di04OS4zSDc0LjRWOTkuMmg0OS4xdjExMi4yem0xMzUuNi04My4yYzAgOS44LTUuMyAxOC40LTE0LjEgMjMuMiAxMi4zIDUuMSAyMCAxNS44IDIwIDI4LjMgMCAyMC4yLTE3LjkgMzMtNDUuOSAzM3MtNDUuOS0xMi42LTQ1LjktMzIuNWMwLTEyLjggOC4zLTIzLjcgMjEuMy0yOC44LTkuNC01LjMtMTUuNS0xNC4yLTE1LjUtMjQgMC0xNy45IDE1LjctMjkuMyA0MC0yOS4zIDI0LjUuMSA0MC4xIDExLjcgNDAuMSAzMC4xem0tNTkuMSA0OS4yYzAgOS40IDYuNyAxNC43IDE5IDE0LjdzMTkuMi01LjEgMTkuMi0xNC43YzAtOS4zLTYuOS0xNC42LTE5LjItMTQuNnMtMTkgNS4zLTE5IDE0LjZ6bTIuOS00Ny42YzAgOCA1LjggMTIuNSAxNi4yIDEyLjVzMTYuMi00LjUgMTYuMi0xMi41YzAtOC4zLTUuOC0xMy0xNi4yLTEzLTEwLjUuMS0xNi4yIDQuNy0xNi4yIDEzeiIvPjxwYXRoIGQ9Ik0xNTUuNCAzMTAuOUM2OS43IDMxMC45IDAgMjQxLjEgMCAxNTUuNFM2OS43IDAgMTU1LjQgMGMxMS42IDAgMjMuMiAxLjMgMzQuNSAzLjlWMTVjLTExLjItMi44LTIyLjgtNC4xLTM0LjUtNC4xLTc5LjcgMC0xNDQuNiA2NC45LTE0NC42IDE0NC42czY0LjkgMTQ0LjYgMTQ0LjYgMTQ0LjZTMzAwIDIzNS4yIDMwMCAxNTUuNWMwLTExLjctMS40LTIzLjMtNC4xLTM0LjVIMzA3YzIuNiAxMS4zIDMuOSAyMi44IDMuOSAzNC41IDAgODUuNi02OS44IDE1NS40LTE1NS41IDE1NS40eiIvPjxwYXRoIGQ9Ik0yNzUuNyAzNS4xVjMuNkgyNTN2MzEuNWgtMzEuNHYyMi43SDI1M3YzMS41aDIyLjdWNTcuOGgzMS41VjM1LjF6Ii8%7CPC9zdmc%7CView%7CExplicit%7CPHN2ZyB2aWV3Qm94PSIwIDAgNDkwLjcgNDkwLjciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI%7CPHBhdGggZD0ibTQ3Mi4zIDIxNi41LTIyNy4xIDIyNy4yLTIyNy4xLTIyNy4yYy00LjItNC4xLTExLTQtMTUuMS4zLTQgNC4xLTQgMTAuNyAwIDE0LjhsMjM0LjcgMjM0LjdjNC4yIDQuMiAxMC45IDQuMiAxNS4xIDBsMjM0LjctMjM0LjdjNC4xLTQuMiA0LTExLS4zLTE1LjEtNC4yLTQtMTAuNy00LTE0LjkgMHoiIGZpbGw9IiM2MDdkOGIiLz48cGF0aCBkPSJtNDcyLjMgMjQuNS0yMjcuMSAyMjcuMi0yMjcuMS0yMjcuMmMtNC4yLTQuMS0xMS00LTE1LjEuMy00IDQuMS00IDEwLjcgMCAxNC44bDIzNC43IDIzNC43YzQuMiA0LjIgMTAuOSA0LjIgMTUuMSAwbDIzNC42LTIzNC43YzQuMi00LjEgNC40LTEwLjguMy0xNS4xLTQuMS00LjItMTAuOC00LjQtMTUuMS0uMy0uMS4yLS4yLjItLjMuM3oiIGZpbGw9IiM2MDdkOGIiLz48cGF0aCBkPSJtMjQ1LjIgNDY5LjRjLTIuOCAwLTUuNS0xLjEtNy42LTMuMWwtMjM0LjYtMjM0LjdjLTQuMS00LjItNC0xMSAuMy0xNS4xIDQuMS00IDEwLjctNCAxNC44IDBsMjI3LjEgMjI3LjEgMjI3LjEtMjI3LjFjNC4yLTQuMSAxMS00IDE1LjEuMyA0IDQuMSA0IDEwLjcgMCAxNC44bC0yMzQuNyAyMzQuN2MtMiAyLTQuNyAzLjEtNy41IDMuMXoiLz48cGF0aCBkPSJtMjQ1LjIgMjc3LjRjLTIuOCAwLTUuNS0xLjEtNy42LTMuMWwtMjM0LjYtMjM0LjdjLTQuMS00LjItNC0xMSAuMy0xNS4xIDQuMS00IDEwLjctNCAxNC44IDBsMjI3LjEgMjI3LjEgMjI3LjEtMjI3LjFjNC4xLTQuMiAxMC44LTQuNCAxNS4xLS4zczQuNCAxMC44LjMgMTUuMWMtLjEuMS0uMi4yLS4zLjNsLTIzNC43IDIzNC43Yy0yIDItNC43IDMuMS03LjUgMy4xeiIvPjwvc3ZnPg%7C1e4%7CscrollHeight%7C5e4%7Cbottom%7Cdo%7CStill%7Cwhile%7CDone%7Cpage%7CWe%7Creached%7Creturn%7Cnew%7CPromise%7CsetTimeout%7CInserting%7CStats%7CCounter%7C26e5f418%7Cbeforebegin%7CWaiting%7C200%7Cvoid%7Cnull%7Chref%7CmoveToElementText%7CcreateRange%7CselectNodeContents%7CremoveAllRanges%7CaddRange%7Cwarn%7CCould%7Ctext%7Cnode%7CUnsupported%7Cbrowser%7CspanUrl%7CTried%7CURL%7Cbecause%7Cevent%7Clistener%7Cbut%7Cdoes%7Cexist%7CRunning%7CPure%7CJavaScript%7CforEach%7CparentNode%7CStarting%7CcreateElement%7Cstyle%7CtextContent%7Chead%7Cappend%7CUn%7Cblur%7Cblurred%7Csource%7Call%7CMake%7Cselectable%7Cfilter%7Cmax%7Cwidth%7Cposition%7CBuy%7CPremium%7Czoom%7CGet%7Caccess%7Carchival%7C299%7C99%7Cmo%7Cpromo%7Cmenu%7Cwe%7Ccan%7Cun%7Chide%7Cadd%7Cpicture%7Cnbutton%7Cspacer%7Cinherit%7Cndiv%7Cmask%7Cwrapper%7Cimpacting%7Chits%7Cany%7Cwhich%7Ccauses%7Caction%7Cauto%7Cwebkit%7Cms%7Cchaining%7Coverscroll%7Cbehavior%7Cunset%7C69882821%7CStops%7Csizes%7Cchanging%7Chappens%7Chit%7CSearch%7Ccause%7Cafter%7Cbefore%7Cbox%7Csizing%7Crevert%7CFormspring%7Cpayment%7Crequest%7CfscCanvas%7Coverlays%7Cblocking%7Cnbody'.split('%7C')%2C0%2C%7B%7D))%7D)()%3B
 */
