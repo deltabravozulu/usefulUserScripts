@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       *://pimeyes.com/en/search/*
 // @grant       none
-// @version     2.5
+// @version     2.7
 // @author      DeltaBravoZulu
 // @description 5/20/2021, 1:58:32 PM
 // @run-at      document-idle
@@ -43,6 +43,11 @@ function check(changes, observer) {
 		explicitStats();
 		scrolled = 0;
 		scrollResultsUpdateListener();
+		//Adds mousedown event listener to highlight text during popup for copying
+		clickThumb = document.querySelector("div.results-grid");
+		clickThumb.addEventListener("mousedown", highlightUrl);
+		//Removes the 'Pay 299/month' overlay if hitting the Deep Search button
+		document.querySelector("div[data-v-69882821]").remove();
 	}
 }
 
@@ -193,9 +198,7 @@ function scrollResultsUpdateListener() {
 	});
 }
 
-//Adds mousedown event listener to highlight text during popup for copying
-clickThumb = document.querySelector("div.results-grid");
-clickThumb.addEventListener("mousedown", highlightUrl);
+
 
 //Highlights and generates url to go to site where image is hosted
 async function highlightUrl() {
@@ -386,9 +389,10 @@ addStyle(`
 `);
 
 //From https://greasyfork.org/scripts/406062
+/*div.modal-content>div.thumbnail>span.url*/
+
 addStyle(`
 /*Make the URLs selectable, and visible*/
-/*div.modal-content>div.thumbnail>span.url*/
 *.url {
     filter: none !important;
     ;
@@ -490,8 +494,6 @@ addStyle(`
 }
 	`);
 
-//Removes the 'Pay 299/month' overlay if hitting the Deep Search button
-document.querySelector("div[data-v-69882821]").remove();
 
 //Stops the button sizes from changing if one happens to hit the Deep Search button or cause an overlay
 addStyle(`
