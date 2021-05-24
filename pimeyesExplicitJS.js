@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       *://pimeyes.com/en/search/*
 // @grant       none
-// @version     2.3
+// @version     2.5
 // @author      DeltaBravoZulu
 // @description 5/20/2021, 1:58:32 PM
 // @run-at      document-idle
