@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       *://pimeyes.com/en/search/*
 // @grant       none
-// @version     2.7
+// @version     2.9
 // @author      DeltaBravoZulu
 // @description 5/20/2021, 1:58:32 PM
 // @run-at      document-idle
@@ -42,6 +42,12 @@ function check(changes, observer) {
 		explicitCount = 0;
 		explicitStats();
 		scrolled = 0;
+    //Gets the Open Graph url which was removed in June
+    var ogUrl=document.querySelectorAll('meta[property="og:url"]')[0].content.replace('https://pimeyes.com/en','')
+    //Adds the URL to the URL bar so you can copypaste it
+    var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + ogUrl;
+    window.history.pushState({path:newurl},'',newurl);
+    //Adds scroll explicit counter
 		scrollResultsUpdateListener();
 		//Adds mousedown event listener to highlight text during popup for copying
 		clickThumb = document.querySelector("div.results-grid");
@@ -175,7 +181,7 @@ function expResultsUpdater() {
 function explicitStats() {
 	console.log("Inserting Stats Counter");
 	var oldResults = document.querySelector(
-		"#results > div > div > div.top-slot > div > div > span > span:nth-child(2)"
+		"#results > div.container > div > div.top-slot > div > div.container > span.stats > span:nth-child(1)"
 	);
 	var explicitResults = oldResults;
 	var resultsHtml =
