@@ -1,11 +1,14 @@
 // ==UserScript==
 // @name        pimeyesExplicitJS
-// @namespace   Violentmonkey Scripts
+// @namespace   https://github.com/deltabravozulu/pimeyesJS
 // @match       *://pimeyes.com/en/search/*
+// @updateURL   https://greasyfork.org/scripts/435345-pimeyesexplicitjs/code/pimeyesExplicitJS.user.js
 // @grant       none
-// @version     2.9
+// @version     9.4.0
 // @author      DeltaBravoZulu
+// @description Mods to make pimeyes.com work better for both premium and free users
 // @description 5/20/2021, 1:58:32 PM
+// @require https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
 // @run-at      document-idle
 // ==/UserScript==
       ///////////////////////////////////////////////////////////////////////////////////
