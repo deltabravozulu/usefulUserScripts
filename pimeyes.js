@@ -1,13 +1,13 @@
 // ==UserScript==
-// @name        pimeyesExplicitJS
+// @name        pimeyesJS
 // @namespace   https://github.com/deltabravozulu/pimeyesJS
 // @match       *://pimeyes.com/en/search/*
-// @updateURL   https://greasyfork.org/scripts/435345-pimeyesexplicitjs/code/pimeyesExplicitJS.user.js
+// @updateURL   https://greasyfork.org/scripts/435345/code/pimeyesJS.user.js
 // @grant       none
 // @version     9.6.9
 // @author      DeltaBravoZulu
 // @description Mods to make pimeyes.com work better for both premium and free users
-// @description 2022-01-12T15:12:13
+// @description 2022-02-18T15:21:51
 // @require https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
 // @run-at      document-idle
 // @license     PayMe
