@@ -4,12 +4,13 @@
 // @match       *://pimeyes.com/en/search/*
 // @updateURL   https://greasyfork.org/scripts/435345-pimeyesexplicitjs/code/pimeyesExplicitJS.user.js
 // @grant       none
-// @version     9.4.0
+// @version     9.6.9
 // @author      DeltaBravoZulu
 // @description Mods to make pimeyes.com work better for both premium and free users
-// @description 5/20/2021, 1:58:32 PM
+// @description 2022-01-12T15:12:13
 // @require https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
 // @run-at      document-idle
+// @license     PayMe
 // ==/UserScript==
       ///////////////////////////////////////////////////////////////////////////////////
      ///////////////////////////////////////////////////////////////////////////////////
@@ -42,6 +43,8 @@ function check(changes, observer) {
 		observer.disconnect();
 		explicitButts();
 		scrollButts();
+		importButts();
+		exportButts();
 		explicitCount = 0;
 		explicitStats();
 		scrolled = 0;
@@ -98,7 +101,7 @@ function explicitButts() {
 	);
 	var explicitButtons = oldButtons.parentElement;
 	var iconHtml =
-		'<button data-v-4ccff48d="" type="button" class="default icon-only" data-v-46dbee4d="" id="18Button"><img data-v-4ccff48d="" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzEwLjkgMzEwLjkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTk1IDIxMS40di04OS4zSDc0LjRWOTkuMmg0OS4xdjExMi4yem0xMzUuNi04My4yYzAgOS44LTUuMyAxOC40LTE0LjEgMjMuMiAxMi4zIDUuMSAyMCAxNS44IDIwIDI4LjMgMCAyMC4yLTE3LjkgMzMtNDUuOSAzM3MtNDUuOS0xMi42LTQ1LjktMzIuNWMwLTEyLjggOC4zLTIzLjcgMjEuMy0yOC44LTkuNC01LjMtMTUuNS0xNC4yLTE1LjUtMjQgMC0xNy45IDE1LjctMjkuMyA0MC0yOS4zIDI0LjUuMSA0MC4xIDExLjcgNDAuMSAzMC4xem0tNTkuMSA0OS4yYzAgOS40IDYuNyAxNC43IDE5IDE0LjdzMTkuMi01LjEgMTkuMi0xNC43YzAtOS4zLTYuOS0xNC42LTE5LjItMTQuNnMtMTkgNS4zLTE5IDE0LjZ6bTIuOS00Ny42YzAgOCA1LjggMTIuNSAxNi4yIDEyLjVzMTYuMi00LjUgMTYuMi0xMi41YzAtOC4zLTUuOC0xMy0xNi4yLTEzLTEwLjUuMS0xNi4yIDQuNy0xNi4yIDEzeiIvPjxwYXRoIGQ9Ik0xNTUuNCAzMTAuOUM2OS43IDMxMC45IDAgMjQxLjEgMCAxNTUuNFM2OS43IDAgMTU1LjQgMGMxMS42IDAgMjMuMiAxLjMgMzQuNSAzLjlWMTVjLTExLjItMi44LTIyLjgtNC4xLTM0LjUtNC4xLTc5LjcgMC0xNDQuNiA2NC45LTE0NC42IDE0NC42czY0LjkgMTQ0LjYgMTQ0LjYgMTQ0LjZTMzAwIDIzNS4yIDMwMCAxNTUuNWMwLTExLjctMS40LTIzLjMtNC4xLTM0LjVIMzA3YzIuNiAxMS4zIDMuOSAyMi44IDMuOSAzNC41IDAgODUuNi02OS44IDE1NS40LTE1NS41IDE1NS40eiIvPjxwYXRoIGQ9Ik0yNzUuNyAzNS4xVjMuNkgyNTN2MzEuNWgtMzEuNHYyMi43SDI1M3YzMS41aDIyLjdWNTcuOGgzMS41VjM1LjF6Ii8+PC9zdmc+"> <span data-v-4ccff48d="">View Explicit</span></button>';
+		'<button data-v-4ccff48d="" type="button" class="default icon-only" data-v-46dbee4d="" id="18Button" title="Scroll to the bottom and remove non-explicit images"><img data-v-4ccff48d="" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzEwLjkgMzEwLjkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTk1IDIxMS40di04OS4zSDc0LjRWOTkuMmg0OS4xdjExMi4yem0xMzUuNi04My4yYzAgOS44LTUuMyAxOC40LTE0LjEgMjMuMiAxMi4zIDUuMSAyMCAxNS44IDIwIDI4LjMgMCAyMC4yLTE3LjkgMzMtNDUuOSAzM3MtNDUuOS0xMi42LTQ1LjktMzIuNWMwLTEyLjggOC4zLTIzLjcgMjEuMy0yOC44LTkuNC01LjMtMTUuNS0xNC4yLTE1LjUtMjQgMC0xNy45IDE1LjctMjkuMyA0MC0yOS4zIDI0LjUuMSA0MC4xIDExLjcgNDAuMSAzMC4xem0tNTkuMSA0OS4yYzAgOS40IDYuNyAxNC43IDE5IDE0LjdzMTkuMi01LjEgMTkuMi0xNC43YzAtOS4zLTYuOS0xNC42LTE5LjItMTQuNnMtMTkgNS4zLTE5IDE0LjZ6bTIuOS00Ny42YzAgOCA1LjggMTIuNSAxNi4yIDEyLjVzMTYuMi00LjUgMTYuMi0xMi41YzAtOC4zLTUuOC0xMy0xNi4yLTEzLTEwLjUuMS0xNi4yIDQuNy0xNi4yIDEzeiIvPjxwYXRoIGQ9Ik0xNTUuNCAzMTAuOUM2OS43IDMxMC45IDAgMjQxLjEgMCAxNTUuNFM2OS43IDAgMTU1LjQgMGMxMS42IDAgMjMuMiAxLjMgMzQuNSAzLjlWMTVjLTExLjItMi44LTIyLjgtNC4xLTM0LjUtNC4xLTc5LjcgMC0xNDQuNiA2NC45LTE0NC42IDE0NC42czY0LjkgMTQ0LjYgMTQ0LjYgMTQ0LjZTMzAwIDIzNS4yIDMwMCAxNTUuNWMwLTExLjctMS40LTIzLjMtNC4xLTM0LjVIMzA3YzIuNiAxMS4zIDMuOSAyMi44IDMuOSAzNC41IDAgODUuNi02OS44IDE1NS40LTE1NS41IDE1NS40eiIvPjxwYXRoIGQ9Ik0yNzUuNyAzNS4xVjMuNkgyNTN2MzEuNWgtMzEuNHYyMi43SDI1M3YzMS41aDIyLjdWNTcuOGgzMS41VjM1LjF6Ii8+PC9zdmc+"> <span data-v-4ccff48d="">View Explicit</span></button>';
 	explicitButtons.insertAdjacentHTML("beforeend", iconHtml);
 	document.getElementById("18Button").addEventListener("click", explicitJS);
 	console.log("Added 18+ Button");
@@ -112,11 +115,79 @@ function scrollButts() {
 	);
 	var scrollButton = oldButtons.parentElement;
 	var scrollIconHtml =
-		'<button data-v-4ccff48d="" type="button" class="default icon-only" data-v-46dbee4d="" id="scrollButton"><img data-v-4ccff48d="" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDkwLjcgNDkwLjciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0ibTQ3Mi4zIDIxNi41LTIyNy4xIDIyNy4yLTIyNy4xLTIyNy4yYy00LjItNC4xLTExLTQtMTUuMS4zLTQgNC4xLTQgMTAuNyAwIDE0LjhsMjM0LjcgMjM0LjdjNC4yIDQuMiAxMC45IDQuMiAxNS4xIDBsMjM0LjctMjM0LjdjNC4xLTQuMiA0LTExLS4zLTE1LjEtNC4yLTQtMTAuNy00LTE0LjkgMHoiIGZpbGw9IiM2MDdkOGIiLz48cGF0aCBkPSJtNDcyLjMgMjQuNS0yMjcuMSAyMjcuMi0yMjcuMS0yMjcuMmMtNC4yLTQuMS0xMS00LTE1LjEuMy00IDQuMS00IDEwLjcgMCAxNC44bDIzNC43IDIzNC43YzQuMiA0LjIgMTAuOSA0LjIgMTUuMSAwbDIzNC42LTIzNC43YzQuMi00LjEgNC40LTEwLjguMy0xNS4xLTQuMS00LjItMTAuOC00LjQtMTUuMS0uMy0uMS4yLS4yLjItLjMuM3oiIGZpbGw9IiM2MDdkOGIiLz48cGF0aCBkPSJtMjQ1LjIgNDY5LjRjLTIuOCAwLTUuNS0xLjEtNy42LTMuMWwtMjM0LjYtMjM0LjdjLTQuMS00LjItNC0xMSAuMy0xNS4xIDQuMS00IDEwLjctNCAxNC44IDBsMjI3LjEgMjI3LjEgMjI3LjEtMjI3LjFjNC4yLTQuMSAxMS00IDE1LjEuMyA0IDQuMSA0IDEwLjcgMCAxNC44bC0yMzQuNyAyMzQuN2MtMiAyLTQuNyAzLjEtNy41IDMuMXoiLz48cGF0aCBkPSJtMjQ1LjIgMjc3LjRjLTIuOCAwLTUuNS0xLjEtNy42LTMuMWwtMjM0LjYtMjM0LjdjLTQuMS00LjItNC0xMSAuMy0xNS4xIDQuMS00IDEwLjctNCAxNC44IDBsMjI3LjEgMjI3LjEgMjI3LjEtMjI3LjFjNC4xLTQuMiAxMC44LTQuNCAxNS4xLS4zczQuNCAxMC44LjMgMTUuMWMtLjEuMS0uMi4yLS4zLjNsLTIzNC43IDIzNC43Yy0yIDItNC43IDMuMS03LjUgMy4xeiIvPjwvc3ZnPg=="> <span data-v-4ccff48d="">Scroll Button</span></button>';
+		'<button data-v-4ccff48d="" type="button" class="default icon-only" data-v-46dbee4d="" id="scrollButton" title="Scroll to the bottom"><img data-v-4ccff48d="" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDkwLjcgNDkwLjciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0ibTQ3Mi4zIDIxNi41LTIyNy4xIDIyNy4yLTIyNy4xLTIyNy4yYy00LjItNC4xLTExLTQtMTUuMS4zLTQgNC4xLTQgMTAuNyAwIDE0LjhsMjM0LjcgMjM0LjdjNC4yIDQuMiAxMC45IDQuMiAxNS4xIDBsMjM0LjctMjM0LjdjNC4xLTQuMiA0LTExLS4zLTE1LjEtNC4yLTQtMTAuNy00LTE0LjkgMHoiIGZpbGw9IiM2MDdkOGIiLz48cGF0aCBkPSJtNDcyLjMgMjQuNS0yMjcuMSAyMjcuMi0yMjcuMS0yMjcuMmMtNC4yLTQuMS0xMS00LTE1LjEuMy00IDQuMS00IDEwLjcgMCAxNC44bDIzNC43IDIzNC43YzQuMiA0LjIgMTAuOSA0LjIgMTUuMSAwbDIzNC42LTIzNC43YzQuMi00LjEgNC40LTEwLjguMy0xNS4xLTQuMS00LjItMTAuOC00LjQtMTUuMS0uMy0uMS4yLS4yLjItLjMuM3oiIGZpbGw9IiM2MDdkOGIiLz48cGF0aCBkPSJtMjQ1LjIgNDY5LjRjLTIuOCAwLTUuNS0xLjEtNy42LTMuMWwtMjM0LjYtMjM0LjdjLTQuMS00LjItNC0xMSAuMy0xNS4xIDQuMS00IDEwLjctNCAxNC44IDBsMjI3LjEgMjI3LjEgMjI3LjEtMjI3LjFjNC4yLTQuMSAxMS00IDE1LjEuMyA0IDQuMSA0IDEwLjcgMCAxNC44bC0yMzQuNyAyMzQuN2MtMiAyLTQuNyAzLjEtNy41IDMuMXoiLz48cGF0aCBkPSJtMjQ1LjIgMjc3LjRjLTIuOCAwLTUuNS0xLjEtNy42LTMuMWwtMjM0LjYtMjM0LjdjLTQuMS00LjItNC0xMSAuMy0xNS4xIDQuMS00IDEwLjctNCAxNC44IDBsMjI3LjEgMjI3LjEgMjI3LjEtMjI3LjFjNC4xLTQuMiAxMC44LTQuNCAxNS4xLS4zczQuNCAxMC44LjMgMTUuMWMtLjEuMS0uMi4yLS4zLjNsLTIzNC43IDIzNC43Yy0yIDItNC43IDMuMS03LjUgMy4xeiIvPjwvc3ZnPg=="> <span data-v-4ccff48d="">Scroll Button</span></button>';
 	scrollButton.insertAdjacentHTML("beforeend", scrollIconHtml);
-	document.getElementById("scrollButton").addEventListener("click", scroller);
+	document.getElementById("scrollButton").addEventListener("click", betterScroller);
 	console.log("Added Scroll Button");
 }
+
+//Injects a button that, when pressed, will copy the Open Graph index to the clipboard
+function exportButts() {
+	console.log("Adding OG URL Export Button");
+	var oldButtons = document.querySelector(
+		"#results > div > div > div.top-slot > div > div > div > button:last-child"
+	);
+	var exportButton = oldButtons.parentElement;
+	var exportIconHtml =
+		'<button data-v-4ccff48d="" type="button" class="default icon-only" data-v-46dbee4d="" id="exportButton" title="Export Open Graph URL to clipboard"><img data-v-4ccff48d="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0ODguMyA0ODguMyI+PHBhdGggZD0iTTMxNC4yNSA4NS40aC0yMjdjLTIxLjMgMC0zOC42IDE3LjMtMzguNiAzOC42djMyNS43YzAgMjEuMyAxNy4zIDM4LjYgMzguNiAzOC42aDIyN2MyMS4zIDAgMzguNi0xNy4zIDM4LjYtMzguNlYxMjRjLS4xLTIxLjMtMTcuNC0zOC42LTM4LjYtMzguNnptMTEuNSAzNjQuMmMwIDYuNC01LjIgMTEuNi0xMS42IDExLjZoLTIyN2MtNi40IDAtMTEuNi01LjItMTEuNi0xMS42VjEyNGMwLTYuNCA1LjItMTEuNiAxMS42LTExLjZoMjI3YzYuNCAwIDExLjYgNS4yIDExLjYgMTEuNnYzMjUuNnoiLz48cGF0aCBkPSJNNDAxLjA1IDBoLTIyN2MtMjEuMyAwLTM4LjYgMTcuMy0zOC42IDM4LjYgMCA3LjUgNiAxMy41IDEzLjUgMTMuNXMxMy41LTYgMTMuNS0xMy41YzAtNi40IDUuMi0xMS42IDExLjYtMTEuNmgyMjdjNi40IDAgMTEuNiA1LjIgMTEuNiAxMS42djMyNS43YzAgNi40LTUuMiAxMS42LTExLjYgMTEuNi03LjUgMC0xMy41IDYtMTMuNSAxMy41czYgMTMuNSAxMy41IDEzLjVjMjEuMyAwIDM4LjYtMTcuMyAzOC42LTM4LjZWMzguNmMwLTIxLjMtMTcuMy0zOC42LTM4LjYtMzguNnoiLz48L3N2Zz4="> <span data-v-4ccff48d="">Export Button</span></button>';
+	scrollButton.insertAdjacentHTML("afterend", exportIconHtml);
+	document.getElementById("exportButton").addEventListener("click", exporter);
+	console.log("Added Export Button");
+}
+
+//Injects a button that, when pressed, will paste the Open Graph index from the clipboard to the URL bar
+function importButts() {
+	console.log("Adding OG URL Import Button");
+	var oldButtons = document.querySelector(
+		"#results > div > div > div.top-slot > div > div > div > button:last-child"
+	);
+	var importButton = oldButtons.parentElement;
+	var importIconHtml =
+		'<button data-v-4ccff48d="" type="button" class="default icon-only" data-v-46dbee4d="" id="importButton" title="Import Open Graph URL from clipboard"><img data-v-4ccff48d="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgMTYgMTYiPjxsaW5lYXJHcmFkaWVudCB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGlkPSJhIiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KC05LjUgOSAtOSAtOS41IDc0LjUzNiA4OCkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4Mj0iMSI+PHN0b3Agb2Zmc2V0PSIuMDA3Ii8+PHN0b3Agb2Zmc2V0PSIxIi8+PC9saW5lYXJHcmFkaWVudD48cGF0aCBkPSJNNjMuNTU2IDkzLjQ4OHYyLjVhMi41IDIuNSAwIDAgMCAyLjUgMi41aDEwYTIuNSAyLjUgMCAwIDAgMi41LTIuNXYtMi4wNmEuNS41IDAgMCAwLTEgMHYyLjA2YTEuNSAxLjUgMCAwIDEtMS41IDEuNWgtMTBhMS41IDEuNSAwIDAgMS0xLjUtMS41di0yLjVhLjUuNSAwIDAgMC0xIDB6bTcuMDAxLjM1NWwtMS4yNjktMS4yNjlhLjUuNSAwIDAgMC0uNzA3LjcwN2wyLjEyMSAyLjEyMWEuNDk5LjQ5OSAwIDAgMCAuNzA3IDBsMi4xMjItMi4xMjFhLjUuNSAwIDAgMC0uNzA3LS43MDdsLTEuMjY3IDEuMjY3LjAwNy03LjgyOWEuNS41IDAgMCAwLTEtLjAwMXoiIGZpbGw9InVybCgjYSkiIGRhdGEtb3JpZ2luYWw9InVybCgjX0xpbmVhcjEpIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtNjMuMDM2IC04NCkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIvPjwvc3ZnPg=="> <span data-v-4ccff48d="">Import Button</span></button>';
+	scrollButton.insertAdjacentHTML("afterend", importIconHtml);
+	document.getElementById("importButton").addEventListener("click", importer);
+	console.log("Added Import Button");
+}
+
+
+  ///////////////////////////////////////
+ //    Export/Import OpenGraph Url    //
+///////////////////////////////////////
+/*
+ ** Includes a scroller to load the page, stats, and sleep timers
+ */
+
+//Copies the open graph url to the clipboard 
+
+ogUrl=document.querySelectorAll('meta[property="og:url"]')[0].content.replace('https://pimeyes.com/en','')
+ogUrlCut=ogUrl.substring(0, ogUrl.lastIndexOf('?')).replace('/search/','')
+
+function exporter() {
+executeCopy = function() {
+  var copyhelper = document.createElement("input");
+  copyhelper.className = 'copyhelper'
+  document.body.appendChild(copyhelper);
+  copyhelper.value = ogUrlCut;
+  copyhelper.select();
+  document.execCommand("copy");
+  document.body.removeChild(copyhelper);
+};
+  executeCopy();
+  console.log("ogURLCut is " + ogUrlCut)
+}
+
+async function importer() {
+  oldPage=window.location.href;
+  oldPageIndex=oldPage.indexOf(ogUrlCut)
+  ogUrlImport= await navigator.clipboard.readText();
+  newPage=oldPage.substr(0, oldPageIndex) + ogUrlImport + "_" + oldPage.substr(oldPageIndex)
+  console.log("oldPage is " + oldPage)
+  console.log("newPage is " + newPage)
+  window.history.pushState({path:newPage},'',newPage);
+  window.location.href=newPage
+}
+
+
 
   ///////////////////////////////////////
  //       Removal Prerequisites       //
@@ -164,6 +235,68 @@ async function scroller() {
 		await sleep(1000);
 		scrolled = 1;
 	}
+}
+
+//Scrolls but lets you control it
+function betterScroller() {
+    var a = document.body.clientHeight,
+        b = document.documentElement.scrollHeight,
+        c = document.documentElement.clientHeight,
+        d = innerHeight,
+        e = document.height;
+    if (console.log("document.body.clientHeight:\t\t\t\t\t" + a + ";\ndocument.documentElement.scrollHeight:\t\t" + b + ";\ndocument.documentElement.clientHeight:\t\t" + c + ";\ninnerHeight:\t\t\t\t\t\t\t\t" + d + ";\ndocument.height:\t\t\t\t\t\t\t" + e), document.URL.includes("facebook.com")) ! function() {
+        var e = null,
+            t = 0,
+            s = function() {
+                console.log("Clicked; stopping autoscroll"), clearInterval(e), document.body.removeEventListener("click", s)
+            };
+        document.body.addEventListener("click", s), e = setInterval(function() {
+            var o = document.body.scrollHeight - document.body.scrollTop - window.innerHeight;
+            o > 0 ? (window.scrollBy(0, o), t > 0 && (t = 0), console.log("scrolling down more")) : t >= 3 ? (console.log("reached bottom of page; stopping"), clearInterval(e), document.body.removeEventListener("click", s)) : (console.log("[apparenty] hit bottom of page; retrying: " + (t + 1)), t++)
+        }, 1e3)
+    }();
+    else {
+        let e, t = 1,
+            s = [
+                [0, 0],
+                [25, 200],
+                [36, 120],
+                [49, 72],
+                [64, 43.2],
+                [81, 25.9],
+                [100, 31],
+                [121, 37.2],
+                [144, 44.8],
+                [169, 26.4],
+                [196, 32]
+            ],
+            o = document.onkeypress;
+        _ss_stop = function() {
+            clearTimeout(e)
+        }, _ss_start = function() {
+            _ss_abs_speed = Math.abs(t), _ss_direction = t / _ss_abs_speed, _ss_speed_pair = s[_ss_abs_speed], e = setInterval("scrollBy(0," + _ss_direction * _ss_speed_pair[0] + "); if((pageYOffset<=1)||(pageYOffset==document.documentElement.scrollHeight-innerHeight)) _ss_speed=0;", _ss_speed_pair[1])
+        }, _ss_adj = function(e) {
+            t += e, Math.abs(t) >= s.length && (t = (s.length - 1) * (t / Math.abs(t)))
+        }, _ss_quit = function() {
+            _ss_stop(), document.onkeypress = o
+        }, document.onkeypress = function(e) {
+            if (113 != e.charCode && 27 != e.keyCode) {
+                if (e.charCode >= 48 && e.charCode <= 57) t = e.charCode - 48;
+                else switch (e.charCode) {
+                    case 95:
+                        _ss_adj(-2);
+                    case 45:
+                        _ss_adj(-1);
+                        break;
+                    case 43:
+                        _ss_adj(2);
+                    case 61:
+                        _ss_adj(1)
+                }
+                _ss_stop(), _ss_start()
+            } else _ss_quit()
+        }, _ss_stop(), _ss_start()
+    }
 }
 
 //Lets script sleep after functions to allow page a bit of time to catch up
