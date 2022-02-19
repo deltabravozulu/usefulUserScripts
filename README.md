@@ -1,4 +1,4 @@
-<h1 id="greasyfork"><a href="https://greasyfork.org/en/scripts/435345">pimeyesJS</a></h1>
+<h2 id="greasyfork"><a href="https://greasyfork.org/en/scripts/435345">pimeyesJS</a></h2>
 <h5 id="intro">Mods to make pimeyes.com work better for both premium <del>and free users</del><sup>†</sup></h5>
 <hr>
 <ul>
