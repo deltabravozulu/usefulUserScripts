@@ -2,6 +2,7 @@
 // @name        amazonReviewWall
 // @namespace   https://github.com/deltabravozulu
 // @include     /^https?:\/\/(www|smile)\.amazon\.(cn|in|co\.jp|sg|ae|fr|de|it|nl|es|co\.uk|ca|com(\.(mx|au|br|tr))?)\/.*(dp|gp\/(product|video)|exec\/obidos\/ASIN|o\/ASIN)\/.*$/
+// @updateURL   https://greasyfork.org/scripts/444765-amazonreviewwall/code/amazonReviewWall.user.js
 // @grant       none
 // @version     9.6.9_420
 // @author      DeltaBravoZulu
@@ -10,8 +11,8 @@
 // @run-at      document-idle
 // @license     PayMe
 // ==/UserScript==
-///////////////////////////////////////
-//          Review Photowall         //
+  ///////////////////////////////////////
+ //      Amazon Review Photowall      //
 ///////////////////////////////////////
 /*
  ** Makes a zoomable photo wall from Amazon review pictures
@@ -251,6 +252,8 @@ opacity: 1;\
     await sleep(1000)
     document.getElementById("zoomwall").innerHTML = text;
     await sleep(1000)
+
+
     var zoomwall = {
         create: function(blocks, enableKeys) {
             zoomwall.resize(blocks.children);
@@ -562,8 +565,8 @@ opacity: 1;\
     await sleep(1000)
     newDoc.close();
 }
-///////////////////////////////////////
-//         Button Injections         //
+  ///////////////////////////////////////
+ //         Button Injections         //
 ///////////////////////////////////////
 /*
  ** Adds button to process start
