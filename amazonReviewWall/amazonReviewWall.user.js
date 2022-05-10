@@ -2,7 +2,7 @@
 // @name        amazonReviewWall
 // @namespace   https://github.com/deltabravozulu/usefulUserScripts
 // @include     /^https?:\/\/(www|smile)\.amazon\.(cn|in|co\.jp|sg|ae|fr|de|it|nl|es|co\.uk|ca|com(\.(mx|au|br|tr))?)\/.*(dp|gp\/(product|video)|exec\/obidos\/ASIN|o\/ASIN)\/.*$/
-// @updateURL   https://greasyfork.org/scripts/444765-amazonreviewwall/code/amazonReviewWall.user.js
+// @updateURL   https://github.com/deltabravozulu/usefulUserScripts/raw/main/amazonReviewWall/amazonReviewWall.user.js
 // @grant       none
 // @version     9.6.9_420.1
 // @author      DeltaBravoZulu
