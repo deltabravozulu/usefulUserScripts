@@ -4,7 +4,7 @@
 // @include     /^https?:\/\/(www|smile)\.amazon\.(cn|in|co\.jp|sg|ae|fr|de|it|nl|es|co\.uk|ca|com(\.(mx|au|br|tr))?)\/.*(dp|gp\/(product|video)|exec\/obidos\/ASIN|o\/ASIN)\/.*$/
 // @updateURL   https://github.com/deltabravozulu/usefulUserScripts/raw/main/amazonReviewWall/amazonReviewWall.user.js
 // @grant       none
-// @version     9.6.9_420.1
+// @version     9.6.9_420.11
 // @author      DeltaBravoZulu
 // @description View Amazon review images in a zoomable wall
 // @description 2022-05-09T22:04:20
