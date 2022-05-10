@@ -3,21 +3,19 @@
 // @namespace   https://github.com/deltabravozulu
 // @include     /^https?:\/\/(www|smile)\.amazon\.(cn|in|co\.jp|sg|ae|fr|de|it|nl|es|co\.uk|ca|com(\.(mx|au|br|tr))?)\/.*(dp|gp\/(product|video)|exec\/obidos\/ASIN|o\/ASIN)\/.*$/
 // @grant       none
-// @version     9.6.9
+// @version     9.6.9_420
 // @author      DeltaBravoZulu
 // @description Amazon image wall builder
-// @description 2022-02-03T14:12:13
+// @description 2022-05-09T18:04:20
 // @run-at      document-idle
 // @license     PayMe
 // ==/UserScript==
-
 ///////////////////////////////////////
 //          Review Photowall         //
 ///////////////////////////////////////
 /*
  ** Makes a zoomable photo wall from Amazon review pictures
  */
-
 async function theStuff() {
     function sleep(ms) {
         return new Promise((resolve) => setTimeout(resolve, ms));
@@ -84,59 +82,117 @@ opacity: 1;\
 ';
         document.appendChild(wrapper);
     }
-
     await sleep(1000)
-
-
-    if (document.getElementById('seeAllImages') != null) {
-        document.getElementById('seeAllImages').click()
-    } else {
-
-        document.querySelector('#reviews-image-gallery-container > div > a').click()
+    //begin NEW 
+    //https://stackoverflow.com/a/58316317/8398127
+    function getChunks(selector, strStart, strEnd) {
+        const html = document.querySelector(selector).innerHTML;
+        const start = html.indexOf(strStart);
+        const end = html.indexOf(strEnd, start);
+        if (start == -1 || end == -1) return;
+        return {
+            before: html.substr(0, start),
+            match: html.substr(start, end - start + strEnd.length),
+            after: html.substr(end + strEnd.length, html.length - end)
+        };
     }
+    //document.documentElement.innerHTML.search('imagePopoverController.loadDataAndInitImageGalleryPopover')
+    let chunkSelector = '#reviews-image-gallery-container > script'
+    let chunkStart = 'data, '
+    let chunkEnd = '");'
+    chunks = getChunks(chunkSelector, chunkStart, chunkEnd).match
+    dataAndCSRF = chunks.replaceAll(');', '').replaceAll('"', '').replaceAll(' ', '')
+    dataAndCSRFArray = dataAndCSRF.split(',')
+    data = dataAndCSRFArray[1]
+    firstReviewIds = dataAndCSRFArray[3]
+    asin = data
+    csrfToken = firstReviewIds
+    let text = ""
+    //https://www.amazon.com/hz/reviews-render/get-reviews-with-media?mediaType=image&asin=B08DKK2KD1&csrfToken=guMT%2B0nYuIuyIIE6DbwfM0%2BcGnpEsbBr8SAKSRIAAAABAAAAAGJ5vEhyYXcAAAAA%2B4kUEk%2F7iMGR3xPcX6iU
+    function loadReviews() {
+        url = 'https://www.amazon.com/hz/reviews-render/get-reviews-with-media?mediaType=image&asin=' + asin + '&csrfToken=' + csrfToken
 
+        function getJSON(url) {
+            var resp;
+            var xmlHttp;
+            resp = '';
+            xmlHttp = new XMLHttpRequest();
+            if (xmlHttp != null) {
+                xmlHttp.open("GET", url, false);
+                xmlHttp.send(null);
+                resp = xmlHttp.responseText;
+            }
+            return resp;
+        }
+        jsonGot = getJSON(url)
+        jsonParsed = JSON.parse(jsonGot)
+        //need to keep doing this until all pages are hit
+        csrfToken = jsonParsed.csrfToken
+        reviews = jsonParsed.reviewsWithMediaList
+        reviewKeys = Object.keys(reviews)
+        reviewCount = reviewKeys.length
+        for (var r = 0; r < reviewCount; r++) {
+            reviewKey = reviewKeys[r]
+            review = reviews[reviewKey];
+            //console.log(review)
+            reviewId = review.reviewId
+            reviewUrl = 'https://www.amazon.com/gp/customer-reviews/' + reviewId
+            profileUrl = 'https://www.amazon.com' + review.customerProfileLink
+            for (var j = 0; j < review.images.length; j++) {
+                imgUrl = review.images[j].source
+                //text += "<a href=\"" + reviewUrl + "\" target=\"_blank\"><img src=\"" + imgUrl + "\"/></a>"
+                text += "<img src=\"" + imgUrl + "\" reviewurl=\"" + reviewUrl + "\" profileurl=\"" + profileUrl + "\"></img>"
+                //text += "<button onclick=\" window.open(\'" + reviewUrl + "\',\'_blank\')\"><img src=\"" + imgUrl + "\"/></button>"
+                console.log("imgUrl: " + imgUrl + ", reviewUrl: " + reviewUrl + ", profileUrl: " + profileUrl)
+                //console.log(csrfToken)
+            }
+        }
+    }
+    loadReviews();
     await sleep(3000)
-
-    
+    //end NEW
+    /*
+    //begin OLD
+    if (document.getElementById('seeAllImages') != null) {
+    document.getElementById('seeAllImages').click()
+    } else {
+    document.querySelector('#reviews-image-gallery-container > div > a').click()
+    }
+    await sleep(3000)
     // Change height of box so all images will show after toggleSeeAllView()
     var allPopover = document.getElementsByClassName('cr-lightbox-see-all-popover-container');
     for (var i = 0; i < allPopover.length; i++) {
-        allPopover[i].style.height = '100%';
-        allPopover[i].style.width = '100%';
-        allPopover[i].style.overflow = 'visible';
-
+    allPopover[i].style.height = '100%';
+    allPopover[i].style.width = '100%';
+    allPopover[i].style.overflow = 'visible';
     }
     var allThumbs = document.getElementsByClassName('cr-thumbnail-preview-tile');
     for (var i = 0; i < allThumbs.length; i++) {
-        allThumbs[i].style.height = '1em';
-        allThumbs[i].style.width = '10em';
-        allThumbs[i].style.overflow = 'visible';
-        allThumbs[i].style.margin = '0px';
-
+    allThumbs[i].style.height = '1em';
+    allThumbs[i].style.width = '10em';
+    allThumbs[i].style.overflow = 'visible';
+    allThumbs[i].style.margin = '0px';
     }
     var allAPopover = document.getElementsByClassName('a-popover');
-        for (var i = 0; i < allAPopover.length; i++) {
-        allAPopover[i].style.height = '100%';
-        allAPopover[i].style.width = '100%';
-        allAPopover[i].style.margin = '0px';
-        allAPopover[i].style.width = '100%';
-        allAPopover[i].style.maxwidth = '100%';
-        allAPopover[i].style.left = 'auto';
-        allAPopover[i].style.top = 'auto';
-    }   
- var allAPopoverModal = document.getElementsByClassName('a-popover-modal');
-        for (var i = 0; i < allAPopoverModal.length; i++) {
-        allAPopoverModal[i].style.height = '100%';
-        allAPopoverModal[i].style.width = '100%';
-        allAPopoverModal[i].style.margin = '0px';
-        allAPopoverModal[i].style.width = '100%';
-        allAPopoverModal[i].style.maxwidth = '100%';
-        allAPopoverModal[i].style.left = '0px';
-        allAPopoverModal[i].style.top = '0px';
-    }   
-
-
-
+    for (var i = 0; i < allAPopover.length; i++) {
+    allAPopover[i].style.height = '100%';
+    allAPopover[i].style.width = '100%';
+    allAPopover[i].style.margin = '0px';
+    allAPopover[i].style.width = '100%';
+    allAPopover[i].style.maxwidth = '100%';
+    allAPopover[i].style.left = 'auto';
+    allAPopover[i].style.top = 'auto';
+    }
+    var allAPopoverModal = document.getElementsByClassName('a-popover-modal');
+    for (var i = 0; i < allAPopoverModal.length; i++) {
+    allAPopoverModal[i].style.height = '100%';
+    allAPopoverModal[i].style.width = '100%';
+    allAPopoverModal[i].style.margin = '0px';
+    allAPopoverModal[i].style.width = '100%';
+    allAPopoverModal[i].style.maxwidth = '100%';
+    allAPopoverModal[i].style.left = '0px';
+    allAPopoverModal[i].style.top = '0px';
+    }
     // Use Amazon's native "see all"
     toggleSeeAllView();
     await sleep(1500)
@@ -163,7 +219,7 @@ opacity: 1;\
     // Set image container
     imgcont = document.getElementById('seeAllImagesContainer')
     if (imgcont == null) {
-        imgcont = document.querySelector('#reviews-image-gallery > div.compositeThumbnailContentView')
+    imgcont = document.querySelector('#reviews-image-gallery > div.compositeThumbnailContentView')
     }
     // Replaxe thumbnails
     imgcont.innerHTML = imgcont.innerHTML.replaceAll('._SY256', '')
@@ -171,48 +227,33 @@ opacity: 1;\
     await sleep(1500)
     imgcont.innerHTML = imgcont.innerHTML.replaceAll('._SY256', '')
     imgcont.innerHTML = imgcont.innerHTML.replaceAll('._SL256_', '')
-
-
     await sleep(3000)
-
     if (imgcont.getElementsByClassName('cr-thumbnail-preview-tile')[0] != null) {
-        thumb = imgcont.getElementsByClassName('cr-thumbnail-preview-tile')
+    thumb = imgcont.getElementsByClassName('cr-thumbnail-preview-tile')
     } else {
-        thumb = imgcont.getElementsByClassName('thumbnailPreviewTile')
+    thumb = imgcont.getElementsByClassName('thumbnailPreviewTile')
     }
     thumbCount = (thumb.length - 1)
-
     await sleep(2000)
-
     let text = ""
     let thumbNum = 0;
     do {
-        thumbNum++;
-        pic = thumb[thumbNum].style.backgroundImage.split('"')[1]
-        console.log(pic)
-        text += "<img src=\"" + pic + "\" data-highres=\"" + pic + "\"/>"
+    thumbNum++;
+    pic = thumb[thumbNum].style.backgroundImage.split('"')[1]
+    console.log(pic)
+    text += "<img src=\"" + pic + "\" data-highres=\"" + pic + "\"/>"
     }
     while (thumbNum < thumbCount);
-
     await sleep(1000)
-
+    */ //END OLD
     var newDoc = document.open("text/html", "replace");
-
-
     appendHTML();
-
     await sleep(1000)
-
     document.getElementById("zoomwall").innerHTML = text;
-
-
     await sleep(1000)
-
     var zoomwall = {
-
         create: function(blocks, enableKeys) {
             zoomwall.resize(blocks.children);
-
             blocks.classList.remove('loading');
             // shrink blocks if an empty space is clicked
             blocks.addEventListener('click', function() {
@@ -220,46 +261,64 @@ opacity: 1;\
                     zoomwall.shrink(this.children[0]);
                 }
             });
-
             // add click listeners to blocks
             for (var i = 0; i < blocks.children.length; i++) {
                 blocks.children[i].addEventListener('click', zoomwall.animate);
             }
-
             // add key down listener
             if (enableKeys) {
                 var keyPager = function(e) {
                     if (e.defaultPrevented) {
                         return;
                     }
-
                     switch (e.keyCode) {
+                        //[escape key]
                         case 27:
                             if (blocks.children && blocks.children.length > 0) {
                                 zoomwall.shrink(blocks.children[0]);
                             }
                             e.preventDefault();
-
                             break;
-
+                            //[left arrow]
                         case 37:
                             zoomwall.page(blocks, false);
                             e.preventDefault();
-
                             break;
-
+                            //[right arrow]
                         case 39:
                             zoomwall.page(blocks, true);
                             e.preventDefault();
-
+                            break;
+                            //adding [space] to open review when active 
+                        case 32:
+                            zoomwall.reviewUrl(blocks);
+                            e.preventDefault();
+                            break;
+                            //adding [up arrow] to open review when active
+                        case 38:
+                            zoomwall.reviewUrl(blocks);
+                            e.preventDefault();
+                            break;
+                            //adding [r] to open review when active
+                        case 82:
+                            zoomwall.reviewUrl(blocks);
+                            e.preventDefault();
+                            break;
+                            //adding [down arrow] to open profile when active
+                        case 40:
+                            zoomwall.profileUrl(blocks);
+                            e.preventDefault();
+                            break;
+                            //adding [p] to open profile when active
+                        case 80:
+                            zoomwall.profileUrl(blocks);
+                            e.preventDefault();
                             break;
                     }
                 }
-
                 document.addEventListener('keydown', keyPager);
             }
         },
-
         resizeRow: function(row, width) {
             if (row && row.length > 1) {
                 for (var i in row) {
@@ -268,100 +327,74 @@ opacity: 1;\
                 }
             }
         },
-
         calcRowWidth: function(row) {
             var width = 0;
-
             for (var i in row) {
                 width += parseInt(window.getComputedStyle(row[i]).width, 10);
             }
-
             return width;
         },
-
         resize: function(blocks) {
             var row = [];
             var top = -1;
-
             for (var c = 0; c < blocks.length; c++) {
                 var block = blocks[c];
-
                 if (block) {
                     if (top == -1) {
                         top = block.offsetTop;
-
                     } else if (block.offsetTop != top) {
                         zoomwall.resizeRow(row, zoomwall.calcRowWidth(row));
-
                         row = [];
                         top = block.offsetTop;
                     }
-
                     row.push(block);
                 }
             }
-
             zoomwall.resizeRow(row, zoomwall.calcRowWidth(row));
         },
-
         reset: function(block) {
             block.style.transform = 'translate(0, 0) scale(1)';
             block.style.webkitTransform = 'translate(0, 0) scale(1)';
             block.classList.remove('active');
         },
-
         shrink: function(block) {
             block.parentNode.classList.remove('lightbox');
-
             // reset all blocks
             zoomwall.reset(block);
-
             var prev = block.previousElementSibling;
             while (prev) {
                 zoomwall.reset(prev);
                 prev = prev.previousElementSibling;
             }
-
             var next = block.nextElementSibling;
             while (next) {
                 zoomwall.reset(next);
                 next = next.nextElementSibling;
             }
-
             // swap images
             if (block.dataset.lowres) {
                 block.src = block.dataset.lowres;
             }
         },
-
         expand: function(block) {
-
             block.classList.add('active');
             block.parentNode.classList.add('lightbox');
-
             // parent dimensions
             var parentStyle = window.getComputedStyle(block.parentNode);
-
             var parentWidth = parseInt(parentStyle.width, 10);
             var parentHeight = parseInt(parentStyle.height, 10);
-
             var parentTop = block.parentNode.getBoundingClientRect().top;
-
             // block dimensions
             var blockStyle = window.getComputedStyle(block);
-
             var blockWidth = parseInt(blockStyle.width, 10);
             var blockHeight = parseInt(blockStyle.height, 10);
-
             // determine maximum height
             var targetHeight = window.innerHeight;
-
             if (parentHeight < window.innerHeight) {
                 targetHeight = parentHeight;
             } else if (parentTop > 0) {
                 targetHeight -= parentTop;
             }
-
             // swap images
             if (block.dataset.highres) {
                 if (block.src != block.dataset.highres && block.dataset.lowres === undefined) {
@@ -369,129 +402,93 @@ opacity: 1;\
                 }
                 block.src = block.dataset.highres;
             }
-
             // determine what blocks are on this row
             var row = [];
             row.push(block);
-
             var next = block.nextElementSibling;
-
             while (next && next.offsetTop == block.offsetTop) {
                 row.push(next);
-
                 next = next.nextElementSibling;
             }
-
             var prev = block.previousElementSibling;
-
             while (prev && prev.offsetTop == block.offsetTop) {
                 row.unshift(prev);
-
                 prev = prev.previousElementSibling;
             }
-
             // calculate scale
             var scale = targetHeight / blockHeight;
-
             if (blockWidth * scale > parentWidth) {
                 scale = parentWidth / blockWidth;
             }
-
             // determine offset
             var offsetY = parentTop - block.parentNode.offsetTop + block.offsetTop;
-
             if (offsetY > 0) {
                 if (parentHeight < window.innerHeight) {
                     offsetY -= targetHeight / 2 - blockHeight * scale / 2;
                 }
-
                 if (parentTop > 0) {
                     offsetY -= parentTop;
                 }
             }
-
             var leftOffsetX = 0; // shift in current row
-
             for (var i = 0; i < row.length && row[i] != block; i++) {
                 leftOffsetX += parseInt(window.getComputedStyle(row[i]).width, 10) * scale;
             }
-
             leftOffsetX = parentWidth / 2 - blockWidth * scale / 2 - leftOffsetX;
-
             var rightOffsetX = 0; // shift in current row
-
             for (var i = row.length - 1; i >= 0 && row[i] != block; i--) {
                 rightOffsetX += parseInt(window.getComputedStyle(row[i]).width, 10) * scale;
             }
-
             rightOffsetX = parentWidth / 2 - blockWidth * scale / 2 - rightOffsetX;
-
             // transform current row
             var itemOffset = 0; // offset due to scaling of previous items
             var prevWidth = 0;
-
             for (var i = 0; i < row.length; i++) {
                 itemOffset += (prevWidth * scale - prevWidth);
                 prevWidth = parseInt(window.getComputedStyle(row[i]).width, 10);
-
                 var percentageOffsetX = (itemOffset + leftOffsetX) / prevWidth * 100;
                 var percentageOffsetY = -offsetY / parseInt(window.getComputedStyle(row[i]).height, 10) * 100;
-
                 row[i].style.transformOrigin = '0% 0%';
                 row[i].style.webkitTransformOrigin = '0% 0%';
                 row[i].style.transform = 'translate(' + percentageOffsetX.toFixed(8) + '%, ' + percentageOffsetY.toFixed(8) + '%) scale(' + scale.toFixed(8) + ')';
                 row[i].style.webkitTransform = 'translate(' + percentageOffsetX.toFixed(8) + '%, ' + percentageOffsetY.toFixed(8) + '%) scale(' + scale.toFixed(8) + ')';
             }
-
             // transform items after
             var nextOffsetY = blockHeight * (scale - 1) - offsetY;
             var prevHeight;
             itemOffset = 0; // offset due to scaling of previous items
             prevWidth = 0;
-
             var next = row[row.length - 1].nextElementSibling;
             var nextRowTop = -1;
-
             while (next) {
                 var curTop = next.offsetTop;
-
                 if (curTop == nextRowTop) {
                     itemOffset += prevWidth * scale - prevWidth;
                 } else {
-
                     if (nextRowTop != -1) {
                         itemOffset = 0;
                         nextOffsetY += prevHeight * (scale - 1);
                     }
-
                     nextRowTop = curTop;
                 }
-
                 prevWidth = parseInt(window.getComputedStyle(next).width, 10);
                 prevHeight = parseInt(window.getComputedStyle(next).height, 10);
-
                 var percentageOffsetX = (itemOffset + leftOffsetX) / prevWidth * 100;
                 var percentageOffsetY = nextOffsetY / prevHeight * 100;
-
                 next.style.transformOrigin = '0% 0%';
                 next.style.webkitTransformOrigin = '0% 0%';
                 next.style.transform = 'translate(' + percentageOffsetX.toFixed(8) + '%, ' + percentageOffsetY.toFixed(8) + '%) scale(' + scale.toFixed(8) + ')';
                 next.style.webkitTransform = 'translate(' + percentageOffsetX.toFixed(8) + '%, ' + percentageOffsetY.toFixed(8) + '%) scale(' + scale.toFixed(8) + ')';
-
                 next = next.nextElementSibling;
             }
-
             // transform items before
             var prevOffsetY = -offsetY;
             itemOffset = 0; // offset due to scaling of previous items
             prevWidth = 0;
-
             var prev = row[0].previousElementSibling;
             var prevRowTop = -1;
-
             while (prev) {
                 var curTop = prev.offsetTop;
-
                 if (curTop == prevRowTop) {
                     itemOffset -= prevWidth * scale - prevWidth;
                 } else {
@@ -499,84 +496,78 @@ opacity: 1;\
                     prevOffsetY -= parseInt(window.getComputedStyle(prev).height, 10) * (scale - 1);
                     prevRowTop = curTop;
                 }
-
                 prevWidth = parseInt(window.getComputedStyle(prev).width, 10);
-
                 var percentageOffsetX = (itemOffset - rightOffsetX) / prevWidth * 100;
                 var percentageOffsetY = prevOffsetY / parseInt(window.getComputedStyle(prev).height, 10) * 100;
-
                 prev.style.transformOrigin = '100% 0%';
                 prev.style.webkitTransformOrigin = '100% 0%';
                 prev.style.transform = 'translate(' + percentageOffsetX.toFixed(8) + '%, ' + percentageOffsetY.toFixed(8) + '%) scale(' + scale.toFixed(8) + ')';
                 prev.style.webkitTransform = 'translate(' + percentageOffsetX.toFixed(8) + '%, ' + percentageOffsetY.toFixed(8) + '%) scale(' + scale.toFixed(8) + ')';
-
                 prev = prev.previousElementSibling;
             }
         },
-
         animate: function(e) {
             if (this.classList.contains('active')) {
                 zoomwall.shrink(this);
             } else {
                 var actives = this.parentNode.getElementsByClassName('active');
-
                 for (var i = 0; i < actives.length; i++) {
                     actives[i].classList.remove('active');
                 }
-
                 zoomwall.expand(this);
             }
-
             e.stopPropagation();
         },
-
+        //deltabravozulu--adding review url 
+        reviewUrl: function(blocks) {
+            var actives = blocks.getElementsByClassName('active');
+            if (actives && actives.length > 0) {
+                var current = actives[0];
+            }
+            window.open(
+                current.attributes.reviewurl.value, "_blank");
+        },
+        //deltabravozulu--adding profile url      
+        profileUrl: function(blocks) {
+            var actives = blocks.getElementsByClassName('active');
+            if (actives && actives.length > 0) {
+                var current = actives[0];
+            }
+            window.open(
+                current.attributes.profileurl.value, "_blank");
+        },
         page: function(blocks, isNext) {
             var actives = blocks.getElementsByClassName('active');
-
             if (actives && actives.length > 0) {
-
                 var current = actives[0];
                 var next;
-
                 if (isNext) {
                     next = current.nextElementSibling;
                 } else {
                     next = current.previousElementSibling;
                 }
-
                 if (next) {
                     current.classList.remove('active');
                     // swap images
                     if (current.dataset.lowres) {
                         current.src = current.dataset.lowres;
                     }
-
                     zoomwall.expand(next);
                 }
             }
         }
     };
-
-
     await sleep(1000)
     zoomwall.create(document.getElementById("zoomwall"), true);
-
-
-
     await sleep(1000)
-
-
     newDoc.close();
 }
-
-
 ///////////////////////////////////////
 //         Button Injections         //
 ///////////////////////////////////////
 /*
  ** Adds button to process start
  */
-
 function addButts() {
     console.log("Adding Button");
     var oldButtons = document.querySelector(
@@ -589,5 +580,4 @@ function addButts() {
     document.getElementById("ImageWallButton").addEventListener("click", theStuff);
     console.log("Added Button");
 }
-
 addButts();
