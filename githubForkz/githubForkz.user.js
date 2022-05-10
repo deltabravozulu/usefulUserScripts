@@ -15,7 +15,7 @@
     'use strict';
 
     try {
-        let ulActions = document.querySelectorAll('#repository-container-header > div.d-flex.mb-3.px-3.px-md-4.px-lg-5:nth-child(1) > ul.pagehead-actions.flex-shrink-0.d-none.d-md-inline:nth-child(2) > li:nth-child(2)')[0];
+        let ulActions = Array.from(document.querySelectorAll('#repository-container-header > div.d-flex.mb-3.px-3.px-md-4.px-lg-5 >ul > li')).find(el => el.textContent.match( 'Fork')).querySelector('span').parentNode.parentNode;
         if (ulActions !== undefined) {
             let findActiveFork = document.location.pathname.substr(1).split('/');
             findActiveFork = 'https://techgaun.github.io/active-forks/index.html#' + findActiveFork[0] + '/' + findActiveFork[1];
@@ -24,7 +24,7 @@
             //old:
             //let forkFinder=document.querySelector("#repository-container-header > div.d-flex.mb-3.px-3.px-md-4.px-lg-5 > ul > li > form > button")
             //new one that works whether you are logged in or not:
-            let forkFinder=Array.from(document.querySelectorAll('#repository-container-header > div.d-flex.mb-3.px-3.px-md-4.px-lg-5 >ul > li')).find(el => el.textContent.match( 'Fork')).querySelector('span').parentNode
+            let forkFinder=Array.from(document.querySelectorAll('#repository-container-header > div.d-flex.mb-3.px-3.px-md-4.px-lg-5 >ul > li')).find(el => el.textContent.match( 'Fork')).querySelector('span').parentNode;
             forkFinder.classList.add("btn-with-count")
             ulActions.innerHTML = ulActions.innerHTML + `
             <li class="BtnGroup-parent flex-auto">
