@@ -1,0 +1,76 @@
+//https://stackoverflow.com/a/58316317/8398127
+function getChunks(selector, strStart, strEnd) {
+    const html = document.querySelector(selector).innerHTML;
+    const start = html.indexOf(strStart);
+    const end = html.indexOf(strEnd, start);
+
+    if (start == -1 || end == -1) return;
+
+    return {
+        before: html.substr(0, start),
+        match: html.substr(start, end - start + strEnd.length),
+        after: html.substr(end + strEnd.length, html.length - end)
+    };
+}
+
+//document.documentElement.innerHTML.search('imagePopoverController.loadDataAndInitImageGalleryPopover')
+let chunkSelector = '#reviews-image-gallery-container > script'
+let chunkStart = 'data, '
+let chunkEnd = '");'
+
+chunks = getChunks(chunkSelector, chunkStart, chunkEnd).match
+dataAndCSRF = chunks.replaceAll(');', '').replaceAll('"', '').replaceAll(' ', '')
+dataAndCSRFArray = dataAndCSRF.split(',')
+data = dataAndCSRFArray[1]
+firstReviewIds = dataAndCSRFArray[3]
+asin = data
+csrfToken = firstReviewIds
+
+
+//https://www.amazon.com/hz/reviews-render/get-reviews-with-media?mediaType=image&asin=B08DKK2KD1&csrfToken=guMT%2B0nYuIuyIIE6DbwfM0%2BcGnpEsbBr8SAKSRIAAAABAAAAAGJ5vEhyYXcAAAAA%2B4kUEk%2F7iMGR3xPcX6iU
+
+function loadReviews() {
+
+    url = 'https://www.amazon.com/hz/reviews-render/get-reviews-with-media?mediaType=image&asin=' + asin + '&csrfToken=' + csrfToken
+
+
+    function getJSON(url) {
+        var resp;
+        var xmlHttp;
+
+        resp = '';
+        xmlHttp = new XMLHttpRequest();
+
+        if (xmlHttp != null) {
+            xmlHttp.open("GET", url, false);
+            xmlHttp.send(null);
+            resp = xmlHttp.responseText;
+        }
+
+        return resp;
+    }
+
+    jsonGot = getJSON(url)
+    jsonParsed = JSON.parse(jsonGot)
+
+    //need to keep doing this until all pages are hit
+    csrfToken = jsonParsed.csrfToken
+    reviews = jsonParsed.reviewsWithMediaList
+
+    reviewKeys = Object.keys(reviews)
+    reviewCount = reviewKeys.length
+
+    for (var r = 0; r < reviewCount; r++) {
+        reviewKey = reviewKeys[r]
+        review = reviews[reviewKey];
+        //console.log(review)
+        reviewId = review.reviewId
+        review_url = 'https://www.amazon.com/gp/customer-reviews/' + reviewId
+        profile = 'https://www.amazon.com' + review.customerProfileLink
+        for (var j = 0; j < review.images.length; j++) {
+            imgurl = review.images[j].source
+            console.log(imgurl)
+            //console.log(csrfToken)
+        }
+    }
+}
