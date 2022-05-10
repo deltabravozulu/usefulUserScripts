@@ -2,9 +2,9 @@
 // @name        pimeyesJS
 // @namespace   https://github.com/deltabravozulu/usefulUserScripts
 // @match       *://pimeyes.com/en/search/*
-// @updateURL   https://greasyfork.org/scripts/435345/code/pimeyesJS.user.js
+// @updateURL   https://github.com/deltabravozulu/usefulUserScripts/raw/main/pimeyesJS/pimeyesJS.user.js
 // @grant       none
-// @version     9.6.9_420
+// @version     9.6.9_420.1
 // @author      DeltaBravoZulu
 // @description Mods to make pimeyes.com work better for both premium and free users
 // @description 2022-05-09T18:04:20
