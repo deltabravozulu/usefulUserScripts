@@ -4,7 +4,7 @@
 // @match       *://github.com/*/*
 // @updateURL   https://github.com/deltabravozulu/usefulUserScripts/raw/main/githubForkz/githubForkz.user.js
 // @grant       none
-// @version     4.20.69
+// @version     4.20.69.1
 // @author      DeltaBravoZulu
 // @description Adds a button to find active and useful forks on Github
 // @description 2022-05-09T22:04:20
