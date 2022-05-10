@@ -4,10 +4,10 @@
 // @include     /^https?:\/\/(www|smile)\.amazon\.(cn|in|co\.jp|sg|ae|fr|de|it|nl|es|co\.uk|ca|com(\.(mx|au|br|tr))?)\/.*(dp|gp\/(product|video)|exec\/obidos\/ASIN|o\/ASIN)\/.*$/
 // @updateURL   https://greasyfork.org/scripts/444765-amazonreviewwall/code/amazonReviewWall.user.js
 // @grant       none
-// @version     9.6.9_420
+// @version     9.6.9_420.1
 // @author      DeltaBravoZulu
-// @description Amazon image wall builder
-// @description 2022-05-09T18:04:20
+// @description View Amazon review images in a zoomable wall
+// @description 2022-05-09T22:04:20
 // @run-at      document-idle
 // @license     PayMe
 // ==/UserScript==
@@ -252,8 +252,6 @@ opacity: 1;\
     await sleep(1000)
     document.getElementById("zoomwall").innerHTML = text;
     await sleep(1000)
-
-
     var zoomwall = {
         create: function(blocks, enableKeys) {
             zoomwall.resize(blocks.children);
@@ -270,53 +268,54 @@ opacity: 1;\
             }
             // add key down listener
             if (enableKeys) {
-                var keyPager = function(e) {
-                    if (e.defaultPrevented) {
+                var keyPager = function(event) {
+                    which = event.which
+                    keyCode = event.keyCode
+                    shiftKey = event.shiftKey
+                    altKey = event.altKey
+                    ctrlKey = event.ctrlKey
+                    metaKey = event.metaKey
+                    key = event.key
+                    defaultPrevented = event.defaultPrevented
+                    //[prevent key codes from working when shift,alt,ctrl,cmd,windows,super,etc. keys are working ]
+                    if (defaultPrevented || shiftKey || altKey || ctrlKey || metaKey) {
+                        console.log(key);
                         return;
                     }
-                    switch (e.keyCode) {
-                        //[escape key]
-                        case 27:
-                            if (blocks.children && blocks.children.length > 0) {
-                                zoomwall.shrink(blocks.children[0]);
-                            }
-                            e.preventDefault();
-                            break;
-                            //[left arrow]
-                        case 37:
-                            zoomwall.page(blocks, false);
-                            e.preventDefault();
-                            break;
-                            //[right arrow]
-                        case 39:
-                            zoomwall.page(blocks, true);
-                            e.preventDefault();
-                            break;
-                            //adding [space] to open review when active 
-                        case 32:
-                            zoomwall.reviewUrl(blocks);
-                            e.preventDefault();
-                            break;
-                            //adding [up arrow] to open review when active
-                        case 38:
-                            zoomwall.reviewUrl(blocks);
-                            e.preventDefault();
-                            break;
-                            //adding [r] to open review when active
-                        case 82:
-                            zoomwall.reviewUrl(blocks);
-                            e.preventDefault();
-                            break;
-                            //adding [down arrow] to open profile when active
-                        case 40:
-                            zoomwall.profileUrl(blocks);
-                            e.preventDefault();
-                            break;
-                            //adding [p] to open profile when active
-                        case 80:
-                            zoomwall.profileUrl(blocks);
-                            e.preventDefault();
-                            break;
+                    //[ESC] = zoom out
+                    else if (keyCode === 27) {
+                        console.log(key);
+                        if (blocks.children && blocks.children.length > 0) {
+                            zoomwall.shrink(blocks.children[0]);
+                        }
+                        event.preventDefault();
+                    }
+                    //[⬅] = previous
+                    else if (keyCode === 37) {
+                        console.log(key);
+                        zoomwall.page(blocks, false);
+                        event.preventDefault();
+                    }
+                    //[➡] = next
+                    else if (keyCode === 39) {
+                        console.log(key);
+                        zoomwall.page(blocks, true);
+                        event.preventDefault();
+                    }
+                    //[space]||[⬆]||[r] = open review
+                    else if (keyCode === 32 || keyCode === 38 || keyCode === 82) {
+                        console.log(key);
+                        zoomwall.reviewUrl(blocks);
+                        event.preventDefault();
+                    }
+                    //[⬇]||[p] = open profile
+                    else if (keyCode === 40 || keyCode === 80) {
+                        console.log(key);
+                        zoomwall.profileUrl(blocks);
+                        event.preventDefault();
+                    } else {
+                        console.log(key);
+                        return;
                     }
                 }
                 document.addEventListener('keydown', keyPager);
@@ -528,7 +527,8 @@ opacity: 1;\
                 var current = actives[0];
             }
             window.open(
-                current.attributes.reviewurl.value, "_blank");
+                current.attributes.reviewurl.value, "_blank").blur();
+            self.focus();
         },
         //deltabravozulu--adding profile url      
         profileUrl: function(blocks) {
@@ -537,7 +537,8 @@ opacity: 1;\
                 var current = actives[0];
             }
             window.open(
-                current.attributes.profileurl.value, "_blank");
+                current.attributes.profileurl.value, "_blank").blur();
+                self.focus();
         },
         page: function(blocks, isNext) {
             var actives = blocks.getElementsByClassName('active');
