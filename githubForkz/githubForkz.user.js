@@ -1,5 +1,5 @@
 // ==UserScript==
-// @namespace         https://greasyfork.org/users/deltabravozulu
+// @namespace         https://github.com/deltabravozulu/usefulUserScripts/
 // @name              githubForkz
 // @author            deltabravozulu
 // @description       Adds a button to find active and useful forks on Github
