@@ -1,13 +1,15 @@
 // ==UserScript==
-// @namespace         https://github.com/deltabravozulu/usefulUserScripts/
-// @name              githubForkz
-// @author            deltabravozulu
-// @description       Adds a button to find active and useful forks on Github
-// @version           4.20.69
-// @match             *://github.com/*/*
-// @grant             none
-// @run-at            document-idle
-// @license           PayMe
+// @name        githubForkz
+// @namespace   https://github.com/deltabravozulu/usefulUserScripts
+// @match       *://github.com/*/*
+// @updateURL   https://github.com/deltabravozulu/usefulUserScripts/raw/main/githubForkz/githubForkz.user.js
+// @grant       none
+// @version     4.20.69
+// @author      DeltaBravoZulu
+// @description Adds a button to find active and useful forks on Github
+// @description 2022-05-09T22:04:20
+// @run-at      document-idle
+// @license     PayMe
 // ==/UserScript==
 (function() {
     'use strict';
