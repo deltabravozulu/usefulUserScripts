@@ -4,7 +4,7 @@
 // @match       *://pimeyes.com/en/search/*
 // @updateURL   https://github.com/deltabravozulu/usefulUserScripts/raw/main/pimeyesJS/pimeyesJS.user.js
 // @grant       none
-// @version     9.6.9_420.1
+// @version     9.6.9_420.11
 // @icon	https://pimeyes.com/favicon.ico
 // @author      DeltaBravoZulu
 // @description Mods to make pimeyes.com work better for both premium and free users
