@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name        WhichFaceIsReal Score Keeper
 // @namespace   Violentmonkey Scripts
-// @namespace2  https://github.com/deltabravozulu/WhichFaceIsRealScoreKeeper
-//@updateURL    https://greasyfork.org/scripts/440286-whichfaceisreal-score-keeper/code/WhichFaceIsRealScoreKeeper.user.js
+// @namespace2  https://github.com/deltabravozulu/usefulUserScripts
+// @updateURL   https://github.com/deltabravozulu/usefulUserScripts/raw/main/WhichFaceIsRealScoreKeeper/WhichFaceIsRealScoreKeeper.user.js
 // @match       *://www.whichfaceisreal.com/*
 // @grant       none
 // @version     4.20.69
