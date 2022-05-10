@@ -5,6 +5,7 @@
 // @updateURL   https://github.com/deltabravozulu/usefulUserScripts/raw/main/amazonReviewWall/amazonReviewWall.user.js
 // @grant       none
 // @version     9.6.9_420.11
+// @icon        https://raw.githubusercontent.com/deltabravozulu/usefulUserScripts/main/amazonReviewWall/amznwall.png
 // @author      DeltaBravoZulu
 // @description View Amazon review images in a zoomable wall
 // @description 2022-05-09T22:04:20
