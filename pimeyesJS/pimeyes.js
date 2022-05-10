@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        pimeyesJS
-// @namespace   https://github.com/deltabravozulu/pimeyesJS
+// @namespace   https://github.com/deltabravozulu/usefulUserScripts
 // @match       *://pimeyes.com/en/search/*
 // @updateURL   https://greasyfork.org/scripts/435345/code/pimeyesJS.user.js
 // @grant       none
@@ -60,6 +60,13 @@ function check(changes, observer) {
 		clickThumb.addEventListener("mousedown", highlightUrl);
 		//Removes the 'Pay 299/month' overlay if hitting the Deep Search button
 		document.querySelector("div[data-v-69882821]").remove();
+    //Makes rows wider and shows images better
+    //This is broken//document.querySelector("div.results-grid").style.width="90";
+    document.querySelector("div.results-grid").style.minWidth="60%";
+    document.querySelector("div.results-grid").style.maxWidth="100%";
+    document.querySelector("div.results-grid").style.gridTemplateColumns = "repeat(5,20%)";
+    document.querySelector("div.results-grid").style.gridAutoRows = "auto";
+
 	}
 }
 
