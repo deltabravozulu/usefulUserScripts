@@ -13,6 +13,8 @@
 // @include     /^https?:\/\/(www|smile)\.amazon\.(cn|in|co\.jp|sg|ae|fr|de|it|nl|es|co\.uk|ca|com(\.(mx|au|br|tr))?)\/.*(dp|gp\/(product|video)|exec\/obidos\/ASIN|o\/ASIN)\/.*$/
 // @grant       GM_setValue
 // @grant       GM_getValue
+// @grant       window.close
+// @grant       window.focus
 // @run-at      document-idle
 // @license     PayMe
 // ==/UserScript==
