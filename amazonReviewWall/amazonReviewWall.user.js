@@ -1,10 +1,9 @@
 // ==UserScript==
 // @name        amazonReviewWall
 // @namespace   https://github.com/deltabravozulu/usefulUserScripts
-// @version     9.6.9_420.13
+// @version     420.69.2022-05-10T17:48:39
 // @author      DeltaBravoZulu
 // @description View Amazon review images in a zoomable wall
-// @description 2022-05-09T22:04:20
 // @homepage    https://github.com/deltabravozulu/usefulUserScripts/tree/main/amazonReviewWall
 // @icon        https://raw.githubusercontent.com/deltabravozulu/usefulUserScripts/main/amazonReviewWall/amznwall.png
 // @icon64        https://raw.githubusercontent.com/deltabravozulu/usefulUserScripts/main/amazonReviewWall/amznwall.png
@@ -90,7 +89,6 @@ opacity: 1;\
         document.appendChild(wrapper);
     }
     await sleep(1000);
-    //begin NEW
     //https://stackoverflow.com/a/58316317/8398127
     function getChunks(selector, strStart, strEnd) {
         const html = document.querySelector(selector).innerHTML;
@@ -103,7 +101,6 @@ opacity: 1;\
             after: html.substr(end + strEnd.length, html.length - end),
         };
     }
-    //document.documentElement.innerHTML.search('imagePopoverController.loadDataAndInitImageGalleryPopover')
     let chunkSelector = "#reviews-image-gallery-container > script";
     let chunkStart = "data, ";
     let chunkEnd = '");';
@@ -187,7 +184,6 @@ opacity: 1;\
             AppendToLocalStorage(asin, profileUrl);
             for (var j = 0; j < review.images.length; j++) {
                 imgUrl = review.images[j].source;
-                //text += "<a href=\"" + reviewUrl + "\" target=\"_blank\"><img src=\"" + imgUrl + "\"/></a>"
                 text +=
                     '<img src="' +
                     imgUrl +
@@ -196,7 +192,6 @@ opacity: 1;\
                     '" profileurl="' +
                     profileUrl +
                     '"></img>';
-                //text += "<button onclick=\" window.open(\'" + reviewUrl + "\',\'_blank\')\"><img src=\"" + imgUrl + "\"/></button>"
                 console.log(
                     "imgUrl: " +
                         imgUrl +
@@ -211,103 +206,6 @@ opacity: 1;\
     }
     loadReviews();
     await sleep(3000);
-    //end NEW
-    /*
-//begin OLD
-if (document.getElementById('seeAllImages') != null) {
-document.getElementById('seeAllImages').click()
-} else {
-document.querySelector('#reviews-image-gallery-container > div > a').click()
-}
-await sleep(3000)
-// Change height of box so all images will show after toggleSeeAllView()
-var allPopover = document.getElementsByClassName('cr-lightbox-see-all-popover-container');
-for (var i = 0; i < allPopover.length; i++) {
-allPopover[i].style.height = '100%';
-allPopover[i].style.width = '100%';
-allPopover[i].style.overflow = 'visible';
-}
-var allThumbs = document.getElementsByClassName('cr-thumbnail-preview-tile');
-for (var i = 0; i < allThumbs.length; i++) {
-allThumbs[i].style.height = '1em';
-allThumbs[i].style.width = '10em';
-allThumbs[i].style.overflow = 'visible';
-allThumbs[i].style.margin = '0px';
-}
-var allAPopover = document.getElementsByClassName('a-popover');
-for (var i = 0; i < allAPopover.length; i++) {
-allAPopover[i].style.height = '100%';
-allAPopover[i].style.width = '100%';
-allAPopover[i].style.margin = '0px';
-allAPopover[i].style.width = '100%';
-allAPopover[i].style.maxwidth = '100%';
-allAPopover[i].style.left = 'auto';
-allAPopover[i].style.top = 'auto';
-}
-var allAPopoverModal = document.getElementsByClassName('a-popover-modal');
-for (var i = 0; i < allAPopoverModal.length; i++) {
-allAPopoverModal[i].style.height = '100%';
-allAPopoverModal[i].style.width = '100%';
-allAPopoverModal[i].style.margin = '0px';
-allAPopoverModal[i].style.width = '100%';
-allAPopoverModal[i].style.maxwidth = '100%';
-allAPopoverModal[i].style.left = '0px';
-allAPopoverModal[i].style.top = '0px';
-}
-// Use Amazon's native "see all"
-toggleSeeAllView();
-await sleep(1500)
-console.log('Sleepin')
-toggleSeeAllView();
-await sleep(1500)
-console.log('Sleepin')
-toggleSeeAllView();
-await sleep(1500)
-console.log('Sleepin')
-toggleSeeAllView();
-await sleep(200)
-console.log('Sleepin')
-toggleSeeAllView();
-await sleep(200)
-console.log('Sleepin')
-toggleSeeAllView();
-await sleep(200)
-console.log('Sleepin')
-toggleSeeAllView();
-await sleep(200)
-console.log('Sleepin')
-toggleSeeAllView();
-// Set image container
-imgcont = document.getElementById('seeAllImagesContainer')
-if (imgcont == null) {
-imgcont = document.querySelector('#reviews-image-gallery > div.compositeThumbnailContentView')
-}
-// Replaxe thumbnails
-imgcont.innerHTML = imgcont.innerHTML.replaceAll('._SY256', '')
-imgcont.innerHTML = imgcont.innerHTML.replaceAll('._SL256_', '')
-await sleep(1500)
-imgcont.innerHTML = imgcont.innerHTML.replaceAll('._SY256', '')
-imgcont.innerHTML = imgcont.innerHTML.replaceAll('._SL256_', '')
-await sleep(3000)
-if (imgcont.getElementsByClassName('cr-thumbnail-preview-tile')[0] != null) {
-thumb = imgcont.getElementsByClassName('cr-thumbnail-preview-tile')
-} else {
-thumb = imgcont.getElementsByClassName('thumbnailPreviewTile')
-}
-thumbCount = (thumb.length - 1)
-await sleep(2000)
-let text = ""
-let thumbNum = 0;
-do {
-thumbNum++;
-pic = thumb[thumbNum].style.backgroundImage.split('"')[1]
-console.log(pic)
-text += "<img src=\"" + pic + "\" data-highres=\"" + pic + "\"/>"
-}
-while (thumbNum < thumbCount);
-await sleep(1000)
-*/
-    //END OLD
     var newDoc = document.open("text/html", "replace");
     appendHTML();
     await sleep(1000);
@@ -656,7 +554,6 @@ await sleep(1000)
             }
             e.stopPropagation();
         },
-        //deltabravozulu--adding review url
         reviewUrl: function (blocks) {
             var actives = blocks.getElementsByClassName("active");
             if (actives && actives.length > 0) {
@@ -665,7 +562,6 @@ await sleep(1000)
             window.open(current.attributes.reviewurl.value, "_blank").blur();
             self.focus();
         },
-        //deltabravozulu--adding profile url
         profileUrl: function (blocks) {
             var actives = blocks.getElementsByClassName("active");
             if (actives && actives.length > 0) {
