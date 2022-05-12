@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name        amazonReviewWall
 // @namespace   https://github.com/deltabravozulu/usefulUserScripts
-// @version     420.69.2022-05-12T14:24:42
+// @version     420.69.2022-05-12T14:28:42
 // @author      DeltaBravoZulu
 // @description View Amazon review images in a zoomable wall
 // @homepage    https://github.com/deltabravozulu/usefulUserScripts/tree/main/amazonReviewWall
-// @icon        https://github.com/deltabravozulu/usefulUserScripts/raw/main/amazonReviewWall/images/amazonReviewWall_small.png
-// @icon64      https://github.com/deltabravozulu/usefulUserScripts/raw/main/amazonReviewWall/images/amazonReviewWall_small.png
-// @updateURL   https://github.com/deltabravozulu/usefulUserScripts/raw/main/amazonReviewWall/amazonReviewWall.user.js
-// @downloadURL https://github.com/deltabravozulu/usefulUserScripts/raw/main/amazonReviewWall/amazonReviewWall.user.js
+// @icon        https://raw.githubusercontent.com/deltabravozulu/usefulUserScripts/main/amazonReviewWall/images/amazonReviewWall_small.png
+// @icon64      https://raw.githubusercontent.com/deltabravozulu/usefulUserScripts/main/amazonReviewWall/images/amazonReviewWall_small.png
+// @updateURL   https://raw.githubusercontent.com/deltabravozulu/usefulUserScripts/main/amazonReviewWall/amazonReviewWall.user.js
+// @downloadURL https://raw.githubusercontent.com/deltabravozulu/usefulUserScripts/main/amazonReviewWall/amazonReviewWall.user.js
 // @supportURL  https://github.com/deltabravozulu/usefulUserScripts
 // @include     /^https?:\/\/(www|smile)\.amazon\.(cn|in|co\.jp|sg|ae|fr|de|it|nl|es|co\.uk|ca|com(\.(mx|au|br|tr))?)\/.*(dp|gp\/(product|video)|exec\/obidos\/ASIN|o\/ASIN)\/.*$/
 // @grant       GM_setValue
