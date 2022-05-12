@@ -5,8 +5,8 @@
 // @author      DeltaBravoZulu
 // @description View Amazon review images in a zoomable wall
 // @homepage    https://github.com/deltabravozulu/usefulUserScripts/tree/main/amazonReviewWall
-// @icon        https://raw.githubusercontent.com/deltabravozulu/usefulUserScripts/main/amazonReviewWall/amznwall.png
-// @icon64      https://raw.githubusercontent.com/deltabravozulu/usefulUserScripts/main/amazonReviewWall/amznwall.png
+// @icon        https://github.com/deltabravozulu/usefulUserScripts/raw/main/amazonReviewWall/images/amazonReviewWall_small.png
+// @icon64      https://github.com/deltabravozulu/usefulUserScripts/raw/main/amazonReviewWall/images/amazonReviewWall_small.png
 // @updateURL   https://github.com/deltabravozulu/usefulUserScripts/raw/main/amazonReviewWall/amazonReviewWall.user.js
 // @downloadURL https://github.com/deltabravozulu/usefulUserScripts/raw/main/amazonReviewWall/amazonReviewWall.user.js
 // @supportURL  https://github.com/deltabravozulu/usefulUserScripts
