@@ -14,4 +14,4 @@
 <h3>Installation:</h3>
 <a href="https://raw.githubusercontent.com/deltabravozulu/usefulUserScripts/main/amazonReviewWall/amazonReviewWall.user.js">Open amazonReviewWall.user.js</a>
 
-<img src="https://raw.githubusercontent.com/deltabravozulu/usefulUserScripts/main/amazonReviewWall/amazonReviewWall.png">
+<img src="https://github.com/deltabravozulu/usefulUserScripts/raw/main/amazonReviewWall/images/amazonReviewWall.png">
