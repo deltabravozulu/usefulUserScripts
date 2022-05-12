@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        amazonReviewWall
 // @namespace   https://github.com/deltabravozulu/usefulUserScripts
-// @version     420.69.2022-05-10T18:44:56
+// @version     420.69.2022-05-12T14:24:42
 // @author      DeltaBravoZulu
 // @description View Amazon review images in a zoomable wall
 // @homepage    https://github.com/deltabravozulu/usefulUserScripts/tree/main/amazonReviewWall
