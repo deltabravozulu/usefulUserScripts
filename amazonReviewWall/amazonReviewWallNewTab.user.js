@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        amazonReviewWall
+// @name        amazonReviewWallNewTab
 // @namespace   https://github.com/deltabravozulu/usefulUserScripts
 // @version     420.69.2022-05-12T15:13:40
 // @author      DeltaBravoZulu
