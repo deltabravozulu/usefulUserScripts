@@ -4,8 +4,9 @@
 <ul>
     <li>Adds a button which will open all review images in a zoomable review wall</li>
     <li>Clicking on review image in wall will zoom in on high resolution photo</li>
-  <li>Pressing <code>[space]</code>, <code>r</code>, or <code>⬆</code> will open the review in a new tab (when zoomed)</li>
-   <li>Pressing <code>p</code> or <code>⬇</code> will open the reviewer's profile in a new tab (when zoomed)</li>
+    <li>Pressing <code>[space]</code>, <code>r</code>, or <code>⬆</code> will open the review in a new tab (when zoomed)</li>
+    <li>Pressing <code>p</code> or <code>⬇</code> will open the reviewer's profile in a new tab (when zoomed)</li>
+    <li>Todo: make it open in a new tab and/or add a method to return to original page without a refresh</li>
 </ul>
 <img src="https://github.com/deltabravozulu/usefulUserScripts/raw/main/amazonReviewWall/images/amazonReviewWall.gif">
 <hr>
