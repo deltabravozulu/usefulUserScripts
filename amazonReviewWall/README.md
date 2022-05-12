@@ -7,7 +7,7 @@
   <li>Pressing <code>[space]</code>, <code>r</code>, or <code>⬆</code> will open the review in a new tab (when zoomed)</li>
    <li>Pressing <code>p</code> or <code>⬇</code> will open the reviewer's profile in a new tab (when zoomed)</li>
 </ul>
-
+<img src="https://github.com/deltabravozulu/usefulUserScripts/raw/main/amazonReviewWall/images/amazonReviewWall.gif">
 <hr>
 <p>This is a UserScript written for <a href="https://violentmonkey.github.io/">Violent Monkey</a> but should work on other UserScript extensions as well</p>
 <hr>
