@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        amazonReviewWallNewTab
 // @namespace   https://github.com/deltabravozulu/usefulUserScripts
-// @version     420.69.2022-05-12T15:13:40
+// @version     420.69.2026-02-20T16:20:00-claude
 // @author      DeltaBravoZulu
 // @description View Amazon review images in a zoomable wall
 // @homepage    https://github.com/deltabravozulu/usefulUserScripts/tree/main/amazonReviewWall
@@ -91,123 +91,61 @@ opacity: 1;\
         newWindow.document.appendChild(wrapper);
     }
     await sleep(1000);
-    //https://stackoverflow.com/a/58316317/8398127
-    function getChunks(selector, strStart, strEnd) {
-        const html = document.querySelector(selector).innerHTML;
-        const start = html.indexOf(strStart);
-        const end = html.indexOf(strEnd, start);
-        if (start == -1 || end == -1) return;
-        return {
-            before: html.substr(0, start),
-            match: html.substr(start, end - start + strEnd.length),
-            after: html.substr(end + strEnd.length, html.length - end),
-        };
-    }
-    let chunkSelector = "#reviews-image-gallery-container > script";
-    let chunkStart = "data, ";
-    let chunkEnd = '");';
-    chunks = getChunks(chunkSelector, chunkStart, chunkEnd).match;
-    dataAndCSRF = chunks
-        .replaceAll(");", "")
-        .replaceAll('"', "")
-        .replaceAll(" ", "");
-    dataAndCSRFArray = dataAndCSRF.split(",");
-    data = dataAndCSRFArray[1];
-    firstReviewIds = dataAndCSRFArray[3];
-    asin = data;
-    csrfToken = firstReviewIds;
+
     let text = "";
-    let date = new Date().toISOString();
-    function AppendToLocalStorage(name, value) {
-        let n = 0;
-        while (localStorage.getItem(name + "-" + n)) {
-            n++;
-        }
-        localStorage.setItem(name + "-" + n, value); //add item at first available index number
-    }
-    function GetLocalStorage(name) {
-        let n = 0;
-        let data = [];
-        while (localStorage.getItem(name + "-" + n)) {
-            data.push(localStorage.getItem(name + "-" + n++));
-        }
-        return data;
-    }
-    function AppendToGMStorage(name, value) {
-        let n = 0;
-        while (GM_getValue(name + "-" + n, "")) {
-            n++;
-        }
-        GM_setValue(name + "-" + n, value); //add item at first available index number
-    }
-    function GetGMStorage(name) {
-        let n = 0;
-        let data = [];
-        while (GM_getValue(name + "-" + n, "")) {
-            data.push(GM_getValue(name + "-" + n++));
-        }
-        return data;
-    }
-    //https://www.amazon.com/hz/reviews-render/get-reviews-with-media?mediaType=image&asin=B08DKK2KD1&csrfToken=guMT%2B0nYuIuyIIE6DbwfM0%2BcGnpEsbBr8SAKSRIAAAABAAAAAGJ5vEhyYXcAAAAA%2B4kUEk%2F7iMGR3xPcX6iU
-    function loadReviews() {
-        url =
-            "https://www.amazon.com/hz/reviews-render/get-reviews-with-media?mediaType=image&asin=" +
-            asin +
-            "&csrfToken=" +
-            csrfToken;
-        function getJSON(url) {
-            var resp;
-            var xmlHttp;
-            resp = "";
-            xmlHttp = new XMLHttpRequest();
-            if (xmlHttp != null) {
-                xmlHttp.open("GET", url, false);
-                xmlHttp.send(null);
-                resp = xmlHttp.responseText;
-            }
-            return resp;
-        }
-        jsonGot = getJSON(url);
-        jsonParsed = JSON.parse(jsonGot);
-        //need to keep doing this until all pages are hit
-        csrfToken = jsonParsed.csrfToken;
-        reviews = jsonParsed.reviewsWithMediaList;
-        reviewKeys = Object.keys(reviews);
-        reviewCount = reviewKeys.length;
-        for (var r = 0; r < reviewCount; r++) {
-            reviewKey = reviewKeys[r];
-            review = reviews[reviewKey];
-            //console.log(review)
-            reviewId = review.reviewId;
-            reviewUrl =
-                "https://www.amazon.com/gp/customer-reviews/" + reviewId;
-            profileUrl = "https://www.amazon.com" + review.customerProfileLink;
-            AppendToGMStorage(asin, profileUrl);
-            AppendToLocalStorage(asin, profileUrl);
-            for (var j = 0; j < review.images.length; j++) {
-                imgUrl = review.images[j].source;
-                text +=
-                    '<img src="' +
-                    imgUrl +
-                    '" reviewurl="' +
-                    reviewUrl +
-                    '" profileurl="' +
-                    profileUrl +
-                    '"></img>';
-                console.log(
-                    "imgUrl: " +
-                        imgUrl +
-                        ", reviewUrl: " +
-                        reviewUrl +
-                        ", profileUrl: " +
-                        profileUrl
-                );
-                //console.log(csrfToken)
-            }
-        }
-    }
-    loadReviews();
-    await sleep(3000);
+
+    // Click "See all photos" to load full gallery
+    // Step 1: click a carousel thumbnail to open the popover
+const thumb = document.querySelector('#cm_cr_carousel_images_section button[data-url]');
+if (!thumb) {
+    alert('Could not find carousel thumbnail.');
+    return;
+}
+thumb.click();
+await sleep(1500);
+
+// Step 2: click "All photos" inside the popover
+const seeAllBtn = document.querySelector('button[data-mix-operations="showMediaGalleryClickHandler"]');
+if (!seeAllBtn) {
+    alert('Could not find "See all photos" button.');
+    return;
+}
+seeAllBtn.click();
+await sleep(1500);
+
+// Step 3: wait for grid and scroll to trigger lazy loading
+const galleryGrid = document.querySelector('div[class*="media-popover-gallery-container-grid"]');
+let waited = 0;
+while (galleryGrid.children.length === 0 && waited < 8000) {
+    await sleep(200);
+    waited += 200;
+}
+
+if (galleryGrid.children.length === 0) {
+    alert('Gallery did not load in time. Try again.');
+    return;
+}
+
+// Scroll to bottom to trigger lazy load of remaining images
+galleryGrid.scrollTop = galleryGrid.scrollHeight;
+await sleep(1500);
+galleryGrid.scrollTop = galleryGrid.scrollHeight;
+await sleep(1000);
+
+// Step 4: harvest all images
+for (const btn of galleryGrid.querySelectorAll('button[data-reviewid]')) {
+    const img = btn.querySelector('img');
+    if (!img) continue;
+    const imgUrl = img.src.replace(/\._[^.]+_\.jpg$/, '.jpg');
+    const reviewId = btn.dataset.reviewid;
+    const reviewUrl = "https://" + window.location.hostname + "/gp/customer-reviews/" + reviewId;
+    text += '<img src="' + imgUrl + '" reviewurl="' + reviewUrl + '" profileurl=""></img>';
+    console.log("imgUrl:", imgUrl, "reviewUrl:", reviewUrl);
+}
+
+// Close the popover
+document.querySelector('button[class*="media-popover-close"]')?.click();
+
     var newWindow = window.open();
     newWindow.document.body.innerHTML = 'howdy';
     var newDoc = newWindow.document.open("text/html", "replace");
